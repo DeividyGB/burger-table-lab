@@ -1,0 +1,136 @@
+<?php
+    session_start();
+
+    if (isset($_GET['id'], $_GET['cliente_nome'], $_GET['created_at'])) {
+        $mesa_id = $_GET['id'];
+        $cliente_nome = $_GET['cliente_nome'];
+        $created_at = $_GET['created_at'];
+        
+    } else {
+        echo "Dados do pedido não encontrados.";
+    }
+?>
+
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Burger Table</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css"/>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
+</head>
+<body>
+    <!-- Modal -->
+
+    <!-- <button type="button" class="button-primary w-25" data-bs-toggle="modal" data-bs-target="#newOrderModal">
+        <i class="ph ph-plus"></i>
+        Novo pedido.
+    </button>
+        
+    <div class="modal fade" id="newOrderModal" tabindex="-1" aria-labelledby="meuModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content custom-modal">
+            <div class="modal-header">
+                <h5 class="modal-title" id="meuModalLabel">Inserir Pedido</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <hr class="hr">
+            <form action="/burger-table/Functions/insertOrder.php" method="POST">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Numero da mesa</label>
+                        <select name="table_session_id">
+                            <option value="">Selecione...</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="8">8</option>
+                            <option value="9">9</option>
+                            <option value="10">10</option>
+                        </select>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="button-secondary" data-bs-dismiss="modal">Fechar</button>
+                    <button type="submit" class="button-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+        </div>
+    </div> -->
+
+    <div class="sidebar">
+        <div class="logo-container">    
+            <div class="logo">
+                <i class="d-flex"><i class="ph ph-fork-knife"></i></i>
+            </div>
+        
+            <div class="app-name">BurgerTable</div>
+        </div>
+        
+        <div class="menu">
+            <a href="index.html" class="menu-item">
+                <i class="ph ph-house-line"></i>
+                Dashboard
+            </a>
+            <a href="#" class="menu-item">
+                <i class="ph ph-fork-knife"></i>
+                Mesas
+            </a>
+            <a href="#" class="menu-item">
+                <i class="ph ph-note"></i>
+                Pedidos
+            </a>
+            <a href="products.html" class="menu-item">
+                <i class="ph ph-cube"></i>
+                Produtos
+            </a>            
+        </div>
+        
+        <a class="logout">
+            Sair
+        </a>
+    </div>
+
+    <div class="section">
+        <div class="header">
+            <div class="header-left">
+                <div class="d-flex align-items-center">
+                    <button id="toggleSidebar" class="btn btn-light me-3"><i class="ph ph-list"></i></button>
+                    <div>
+                        <h1 class="page-title"><i class="ph ph-hamburger"></i> BurgerTable</h1>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="user-info">
+                <div class="user-name">
+                    <h4>Diogo da Silva</h4>
+                    <p>Gerente do pal mole</p>
+                </div>
+                <div class="avatar cs">DPM</div>
+            </div>
+        </div>
+        <div class="main-content">
+            
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js" integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq" crossorigin="anonymous"></script>
+    <script>
+    $('#toggleSidebar').on('click', function () {
+        console.log("ai ai ui ui");
+        $('.sidebar').toggleClass('hidden');
+    });
+    </script>
+</body>
+</html>
