@@ -1,3 +1,5 @@
+DROP DATABASE `burger-table-lab`;
+CREATE DATABASE `burger-table-lab`;
 CREATE TABLE IF NOT EXISTS orders(
     id INT PRIMARY KEY AUTO_INCREMENT,
     table_session_id INT,
@@ -28,10 +30,10 @@ CREATE TABLE IF NOT EXISTS tables_sessions(
     closed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
-ALTER TABLE tables_sessions ADD CONSTRAINT IF NOT EXISTS fk_sess_table
+ALTER TABLE tables_sessions ADD CONSTRAINT fk_sess_table
 FOREIGN KEY (table_id) REFERENCES tables(id);
 
-ALTER TABLE orders ADD CONSTRAINT IF NOT EXISTS fk_order_sess
+ALTER TABLE orders ADD CONSTRAINT fk_order_sess
 FOREIGN KEY (table_session_id) REFERENCES tables_sessions(id);
 
 DELETE FROM tables WHERE table_number IN (1,2,3,4,5,6,7,8,9,10);
