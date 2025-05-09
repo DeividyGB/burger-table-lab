@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS products(
     type VARCHAR(20)
 );
 
+DROP TABLE tables;
 CREATE TABLE IF NOT EXISTS tables(
 id INT PRIMARY KEY AUTO_INCREMENT,
     table_number INT
@@ -28,10 +29,10 @@ CREATE TABLE IF NOT EXISTS tables_sessions(
     closed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
-ALTER TABLE tables_sessions ADD CONSTRAINT fk_sess_table
+ALTER TABLE tables_sessions ADD CONSTRAINT IF NOT EXISTS fk_sess_table
 FOREIGN KEY (table_id) REFERENCES tables(id);
 
-ALTER TABLE orders ADD CONSTRAINT fk_order_sess
+ALTER TABLE orders ADD CONSTRAINT IF NOT EXISTS fk_order_sess
 FOREIGN KEY (table_session_id) REFERENCES tables_sessions(id);
 
 INSERT INTO tables(table_number) VALUES (1);
