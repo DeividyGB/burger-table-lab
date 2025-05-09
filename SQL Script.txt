@@ -16,7 +16,6 @@ CREATE TABLE IF NOT EXISTS products(
     type VARCHAR(20)
 );
 
-DROP TABLE tables;
 CREATE TABLE IF NOT EXISTS tables(
 id INT PRIMARY KEY AUTO_INCREMENT,
     table_number INT
@@ -35,6 +34,7 @@ FOREIGN KEY (table_id) REFERENCES tables(id);
 ALTER TABLE orders ADD CONSTRAINT IF NOT EXISTS fk_order_sess
 FOREIGN KEY (table_session_id) REFERENCES tables_sessions(id);
 
+DELETE FROM tables WHERE table_number IN (1,2,3,4,5,6,7,8,9,10);
 INSERT INTO tables(table_number) VALUES (1);
 INSERT INTO tables(table_number) VALUES (2);
 INSERT INTO tables(table_number) VALUES (3);
