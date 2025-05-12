@@ -32,6 +32,32 @@ body {
     background-color: var(--background-color)!important;
 }
 
+footer {
+    padding: 10px 20px;
+    width: 50%;
+    align-self: center;
+    font-size: small;
+    border-radius: 10px 10px;
+    background-color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #333;
+    font-weight: bold;
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.05);
+    position: relative;
+    z-index: 10;
+}
+
+
+h1, h2, h3, h4, h5, h6 {
+    text-align: start;
+    font-weight: 600 !important;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
 select{
     width: 100%;
     padding: 10px 12px;
@@ -160,6 +186,23 @@ input::placeholder {
     margin-left: -250px;
 }
 
+.card-section{
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    height: 90%;
+}
+
+.info-card{
+    padding: 5px;
+    border: solid 1px #cbcbcb;
+    border-radius: 5px;
+    display: flex;
+    justify-content: center;
+    margin-top: 15px;
+    height: 90%;
+}
+
 .logo-container {
     padding: 0 20px 20px;
     display: flex;
@@ -256,7 +299,7 @@ input::placeholder {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 5px;
     padding: 15px;
     box-shadow: #0000000f 1px 2px 7px 1px;
     border-bottom: 1px solid #eee;
