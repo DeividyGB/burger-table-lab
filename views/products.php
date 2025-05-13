@@ -20,7 +20,7 @@
         </div>
         
         <div class="menu">
-            <a href="index.html"  class="menu-item">
+            <a href="index.php"  class="menu-item">
                 <i class="ph ph-house-line"></i>
                 Dashboard
             </a>
@@ -32,7 +32,7 @@
                 <i class="ph ph-note"></i>
                 Pedidos
             </a>
-            <a href="products.html" class="menu-item active">
+            <a href="products.php" class="menu-item active">
                 <i class="ph ph-cube"></i>
                 Produtos
             </a>            
@@ -48,39 +48,42 @@
         <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content custom-modal">
             <div class="modal-header">
-                <h5 class="modal-title d-flex align-items-center"><i class="ph ph-note" style="margin-right: 5px;"></i>Inserir Pedido</h5>
+                <h5 class="modal-title d-flex align-items-center"><i class="ph ph-plus"></i> Novo Produto.</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
             </div>
             <hr class="hr">
-            <form action="/burger-table/Functions/insertOrder.php" method="POST">
+            <form action="/burger-table/Functions/insertProduct.php" method="POST">
                 <div class="modal-body">
                     <div class="row">
-                        <div class="col-md-12">
-                            <label class="form-label">Número da mesa.</label>
-                            <select name="table_session_id">
-                                <option value="">Selecione...</option>
-                                <option value="1">1</option>
-                                <option value="2">2</option>
-                                <option value="3">3</option>
-                                <option value="4">4</option>
-                                <option value="5">5</option>
-                                <option value="6">6</option>
-                                <option value="7">7</option>
-                                <option value="8">8</option>
-                                <option value="9">9</option>
-                                <option value="10">10</option>
-                            </select>
+                        <div class="col-md-6">
+                            <label class="form-label" for="Nome do produto">Nome do produto.</label>
+                            <input type="text" name="product_name" placeholder="Digite o nome do produto">
                         </div>
             
                         <div class="col-md-6">
-                            <label class="form-label">Quantidade de pessoas.</label>
-                            <input type="number" name="people_count" placeholder="Nº">
+                            <label class="form-label" for="Preço do produto">Preço.</label>
+                            <input type="number" name="product_price" placeholder="Digite o valor do produto">
                         </div>
                     </div>
             
-                    <div class="mt-3">
-                        <label class="form-label" for="name_client">Nome do cliente.</label>
-                        <input type="text" id="name_client" name="name_client" placeholder="Digite o nome do cliente.">
+                    <div class="row">
+                        <div class="mt-3 col-md-12">
+                            <label class="form-label" for="Descrição do produto">Descrição.</label>
+                            <input type="text" name="product_description" placeholder="Digite a descrição do produto.">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="mt-3 col-md-12">
+                            <label class="form-label" for="Descrição do produto">Categoria.</label>
+                            <select name="category" required>
+                                <option value="">Selecione a categoria...</option>
+                                <option value="hamburger">Hambúrger</option>
+                                <option value="bebidas">Bebidas</option>  
+                                <option value="acompanhamentos">Acompanhamentos</option>
+                                <option value="doces">Doces</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -112,22 +115,53 @@
             </div>
         </div>
         <div class="main-content">
-            <h3 ><i class="ph ph-hamburger"></i> Meus produtos</h3>
+            <h3><i class="ph ph-hamburger"></i> Meus produtos</h3>
             <hr>
 
-            <section class="card-section">
-                <button class="button-primary w-25" data-bs-toggle="modal" data-bs-target="#newProductModal">
+            <button class="button-primary w-25" data-bs-toggle="modal" data-bs-target="#newProductModal">
                     <i class="ph ph-plus"></i>
                     Novo produto.
-                </button>
+            </button>
 
+            <section class="card-section">
+            <?php
+                include('../Functions/connectionDB.php');
 
-                <div class="info-card">
-                    <span class="align-self-center">NENHUM PRODUTO CADASTRADO</span>
-                </div>
+                $sql = "SELECT * FROM products ORDER BY type, name";
+                $result = $conn->query($sql);
+                $categorias = [];
+
+                if ($result && $result->num_rows > 0) {
+                    while ($row = $result->fetch_assoc()) {
+                        $categoria = ucfirst($row['type']);
+                        $categorias[$categoria][] = $row;
+                    }
+
+                    foreach ($categorias as $categoria => $produtos) {
+                        echo '<div class="category-card">';
+                        echo '<h4 class="category-title">' . htmlspecialchars($categoria) . '</h4>';
+                        echo '<div class="product-list">';
+
+                        foreach ($produtos as $produto) {
+                            echo '<div class="product-card flex-grow-1">';
+                            echo '<h5>' . htmlspecialchars($produto['name']) . '</h5>';
+                            echo '<p class="price">R$ ' . number_format($produto['price'], 2, ',', '.') . '</p>';
+                            echo '<p class="description">' . htmlspecialchars($produto['description']) . '</p>';
+                            echo '</div>';
+                        }
+
+                        echo '</div>';
+                        echo '</div>';
+                    }
+                } else {
+                    echo '<div class="info-card">';
+                    echo '<span class="align-self-center">Nenhum produto cadastrado.</span>';
+                    echo '</div>';
+                }
+            ?>
             </section>
-
         </div>
+
         
         <footer>
             <div class="d-flex flex-column align-items-center">

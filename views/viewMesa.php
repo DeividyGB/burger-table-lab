@@ -78,7 +78,7 @@
         </div>
         
         <div class="menu">
-            <a href="index.html" class="menu-item">
+            <a href="index.php" class="menu-item">
                 <i class="ph ph-house-line"></i>
                 Dashboard
             </a>
@@ -90,7 +90,7 @@
                 <i class="ph ph-note"></i>
                 Pedidos
             </a>
-            <a href="products.html" class="menu-item">
+            <a href="products.php" class="menu-item">
                 <i class="ph ph-cube"></i>
                 Produtos
             </a>            
