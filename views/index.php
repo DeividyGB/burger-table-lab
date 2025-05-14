@@ -18,24 +18,20 @@
         
             <div class="app-name">BurgerTable</div>
         </div>
-        
+
         <div class="menu">
-            <a href="index.html" class="menu-item active">
+            <a href="index.php"  class="menu-item active">
                 <i class="ph ph-house-line"></i>
-                Dashboard
+                Pedidos
             </a>
             <a href="#" class="menu-item">
                 <i class="ph ph-fork-knife"></i>
                 Mesas
             </a>
-            <a href="#" class="menu-item">
-                <i class="ph ph-note"></i>
-                Pedidos
-            </a>
             <a href="products.php" class="menu-item">
                 <i class="ph ph-cube"></i>
                 Produtos
-            </a>            
+            </a>
         </div>
         
         <a class="logout">

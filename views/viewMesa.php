@@ -5,7 +5,7 @@
         $mesa_id = $_GET['id'];
         $cliente_nome = $_GET['cliente_nome'];
         $created_at = $_GET['created_at'];
-        
+
     } else {
         echo "Dados do pedido não encontrados.";
     }
@@ -30,7 +30,7 @@
         <i class="ph ph-plus"></i>
         Novo pedido.
     </button>
-        
+
     <div class="modal fade" id="newOrderModal" tabindex="-1" aria-labelledby="meuModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content custom-modal">
@@ -69,33 +69,29 @@
     </div> -->
 
     <div class="sidebar">
-        <div class="logo-container">    
+        <div class="logo-container">
             <div class="logo">
                 <i class="d-flex"><i class="ph ph-fork-knife"></i></i>
             </div>
-        
+
             <div class="app-name">BurgerTable</div>
         </div>
-        
+
         <div class="menu">
-            <a href="index.php" class="menu-item">
+            <a href="index.php"  class="menu-item active">
                 <i class="ph ph-house-line"></i>
-                Dashboard
+                Pedidos
             </a>
             <a href="#" class="menu-item">
                 <i class="ph ph-fork-knife"></i>
                 Mesas
             </a>
-            <a href="#" class="menu-item">
-                <i class="ph ph-note"></i>
-                Pedidos
-            </a>
             <a href="products.php" class="menu-item">
                 <i class="ph ph-cube"></i>
                 Produtos
-            </a>            
+            </a>
         </div>
-        
+
         <a class="logout">
             Sair
         </a>
@@ -111,7 +107,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="user-info">
                 <div class="user-name">
                     <h4>Diogo da Silva</h4>
@@ -121,13 +117,13 @@
             </div>
         </div>
         <div class="main-content">
-            
+
         </div>
         <footer>
             <div class="d-flex flex-column align-items-center">
                 <span>🍔 Sistema de Pedidos - Burger Table © <?php echo date('Y'); ?>. Todos os direitos reservados.</span>
                 <span style="font-size: 0.8rem; color: #777;">Desenvolvido com ❤ Pela equipe Rock Wins 💻</span>
-            </div>            
+            </div>
         </footer>
     </div>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>

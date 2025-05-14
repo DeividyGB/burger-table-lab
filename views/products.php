@@ -22,15 +22,11 @@
         <div class="menu">
             <a href="index.php"  class="menu-item">
                 <i class="ph ph-house-line"></i>
-                Dashboard
+                Pedidos
             </a>
             <a href="#" class="menu-item">
                 <i class="ph ph-fork-knife"></i>
                 Mesas
-            </a>
-            <a href="#" class="menu-item">
-                <i class="ph ph-note"></i>
-                Pedidos
             </a>
             <a href="products.php" class="menu-item active">
                 <i class="ph ph-cube"></i>
@@ -95,6 +91,55 @@
         </div>
     </div>
 
+    <div class="modal fade" id="editProductModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content custom-modal">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="ph ph-pencil-simple"></i> Editar Produto</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <hr class="hr">
+                <form action="/burger-table/Functions/updateProduct.php" method="POST">
+                    <div class="modal-body">
+                        <input type="hidden" name="product_id" id="editProductId">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label class="form-label">Nome do produto.</label>
+                                <input type="text" name="product_name" id="editProductName" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Preço.</label>
+                                <input type="number" step="0.01" name="product_price" id="editProductPrice" required>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-12">
+                                <label class="form-label">Descrição.</label>
+                                <input type="text" name="product_description" id="editProductDescription" required>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-12">
+                                <label class="form-label">Categoria.</label>
+                                <select name="category" id="editProductCategory" required>
+                                    <option value="hamburger">Hambúrger</option>
+                                    <option value="bebidas">Bebidas</option>
+                                    <option value="acompanhamentos">Acompanhamentos</option>
+                                    <option value="doces">Doces</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="button-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="button-primary w-25">Salvar Alterações</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
     <div class="section">
         <div class="header">
             <div class="header-left">
@@ -118,13 +163,21 @@
             <h3><i class="ph ph-hamburger"></i> Meus produtos</h3>
             <hr>
 
-            <button class="button-primary w-25" data-bs-toggle="modal" data-bs-target="#newProductModal">
+            <div class="d-flex justify-content-between">
+                <button class="button-primary w-25 mb-3" data-bs-toggle="modal" data-bs-target="#newProductModal">
                     <i class="ph ph-plus"></i>
                     Novo produto.
-            </button>
+                </button>
+
+                <div class="d-flex align-items-center mb-3 w-50" style="gap: 5px">
+                    <label for="Pesquisar Produto">Pesquisar</label>
+                    <input type="text" id="searchInput" placeholder="Pesquisar produto por nome... ">
+                </div>
+            </div>
 
             <section class="card-section">
-            <?php
+
+                <?php
                 include('../Functions/connectionDB.php');
 
                 $sql = "SELECT * FROM products ORDER BY type, name";
@@ -137,28 +190,72 @@
                         $categorias[$categoria][] = $row;
                     }
 
+                    // Abas
+                    echo '<ul class="nav nav-tabs mb-3" id="categoryTabs" role="tablist" style="gap: 5px">';
+                    $i = 0;
                     foreach ($categorias as $categoria => $produtos) {
-                        echo '<div class="category-card">';
-                        echo '<h4 class="category-title">' . htmlspecialchars($categoria) . '</h4>';
-                        echo '<div class="product-list">';
+                        $activeClass = $i === 0 ? 'active' : '';
+                        echo '
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link ' . $activeClass . '" id="tab-' . $i . '" data-bs-toggle="tab" data-bs-target="#content-' . $i . '" type="button" role="tab">
+                                    ' . htmlspecialchars($categoria) . '
+                                </button>
+                            </li>
+                        ';
+                        $i++;
+                    }
+                    echo '</ul>';
+
+                    echo '<div class="tab-content" id="categoryTabsContent">';
+                    $i = 0;
+                    foreach ($categorias as $categoria => $produtos) {
+                        $showActive = $i === 0 ? 'show active' : '';
+                        echo '<div class="tab-pane fade ' . $showActive . '" id="content-' . $i . '" role="tabpanel">';
+                        echo '<div class="d-flex flex-wrap gap-3">';
 
                         foreach ($produtos as $produto) {
-                            echo '<div class="product-card flex-grow-1">';
-                            echo '<h5>' . htmlspecialchars($produto['name']) . '</h5>';
-                            echo '<p class="price">R$ ' . number_format($produto['price'], 2, ',', '.') . '</p>';
-                            echo '<p class="description">' . htmlspecialchars($produto['description']) . '</p>';
+                            echo '<div class="product-card border rounded p-3 shadow-sm flex-grow-1" style="width: 250px; background: #fff;" data-name="' . strtolower(htmlspecialchars($produto['name'])) . '">';
+
+                            echo '<h5 style="gap: 5px"><span class="fw-bold">Produto:</span> <span class="text-primary-light">' . htmlspecialchars($produto['name']) . '.</span></h5>';
+                            echo '<hr>';
+                            echo '<p class="description"><span class="fw-bold">Descrição:</span> ' . htmlspecialchars($produto['description']) . '</p>';
+                            echo '<p class="price text-success fw-bold align-self-end">R$ ' . number_format($produto['price'], 2, ',', '.') . '</p>';
+
+                            // Botões
+                            echo '<div class="d-flex justify-content-between mt-3">';
+
+                            echo '<button class="button-secondary" data-bs-toggle="modal" data-bs-target="#editProductModal" 
+                                    data-id="' . $produto['id'] . '" 
+                                    data-name="' . htmlspecialchars($produto['name']) . '" 
+                                    data-description="' . htmlspecialchars($produto['description']) . '" 
+                                    data-price="' . $produto['price'] . '" 
+                                    data-type="' . $produto['type'] . '">
+                                    <i class="ph ph-pencil-simple"></i> Editar
+                                </button>';
+
+                                        echo '<form method="POST" action="../Functions/deleteProduct.php" onsubmit="return confirm(\'Tem certeza que deseja excluir este produto?\')" class="m-0 p-0">
+                                    <input type="hidden" name="id" value="' . $produto['id'] . '">
+                                    <button type="submit" class="btn btn-sm btn-danger">
+                                        <i class="ph ph-trash"></i> Excluir
+                                    </button>
+                                </form>';
+
+                            echo '</div>';
                             echo '</div>';
                         }
 
+
                         echo '</div>';
                         echo '</div>';
+                        $i++;
                     }
+                    echo '</div>';
                 } else {
                     echo '<div class="info-card">';
                     echo '<span class="align-self-center">Nenhum produto cadastrado.</span>';
                     echo '</div>';
                 }
-            ?>
+                ?>
             </section>
         </div>
 
@@ -174,10 +271,46 @@
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js" integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq" crossorigin="anonymous"></script>
     <script>
-    $('#toggleSidebar').on('click', function () {
-        console.log("ai ai ui ui");
-        $('.sidebar').toggleClass('hidden');
-    });
+        $('#toggleSidebar').on('click', function () {
+            console.log("ai ai ui ui");
+            $('.sidebar').toggleClass('hidden');
+        });
     </script>
+
+    <script>
+        document.getElementById('searchInput').addEventListener('input', function () {
+            const searchTerm = this.value.toLowerCase().trim();
+            const cards = document.querySelectorAll('.tab-pane.active .product-card');
+
+            cards.forEach(card => {
+                const name = card.getAttribute('data-name');
+                if (name.includes(searchTerm)) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+
+        document.querySelectorAll('#categoryTabs .nav-link').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.getElementById('searchInput').value = '';
+                const allCards = document.querySelectorAll('.product-card');
+                allCards.forEach(card => card.style.display = '');
+            });
+        });
+
+        const editModal = document.getElementById('editProductModal');
+        editModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+
+        document.getElementById('editProductId').value = button.getAttribute('data-id');
+        document.getElementById('editProductName').value = button.getAttribute('data-name');
+        document.getElementById('editProductDescription').value = button.getAttribute('data-description');
+        document.getElementById('editProductPrice').value = button.getAttribute('data-price');
+        document.getElementById('editProductCategory').value = button.getAttribute('data-type');
+        });
+    </script>
+
 </body>
 </html>
