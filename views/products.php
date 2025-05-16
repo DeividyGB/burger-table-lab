@@ -175,7 +175,7 @@
                 </div>
             </div>
 
-            <section class="card-section">
+            <section class="card-section flex-column">
 
                 <?php
                 include('../Functions/connectionDB.php');

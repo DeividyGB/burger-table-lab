@@ -193,6 +193,9 @@ input::placeholder {
     background: white;
     padding: 25px;
     border-radius: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
     height: 90%;
 }
 
@@ -435,5 +438,196 @@ input::placeholder {
 
 .avatar.cs {
     background-color: #6a1b9a;
+}
+
+.tabs-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding-bottom: 10px;
+}
+
+.tabs-buttons button {
+    padding: 10px 20px;
+    border: 1px solid #e0dcd5;
+    border-radius: 10px;
+    background-color: var(--background-color);
+    color: #333;
+    font-weight: 500;
+    display: flex;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    align-items: center;
+    gap: 5px;
+}
+
+.tabs-buttons button:hover {
+    background-color: #f0e9e1;
+    color: var(--dark-text);
+}
+
+.tabs-buttons .active-tab {
+    background-color: #c13232;
+    color: white;
+    border: none;
+    font-weight: bold;
+}
+
+.tab-section {
+    display: none;
+    flex-wrap: wrap;
+    gap: 20px;
+    width: 100%;
+}
+
+.tab-section.active-tab-section {
+    display: flex;
+}
+
+.tab-content{
+    height: 100%;
+    padding: 15px;
+    border: solid 1px #cbcbcb;
+    border-radius: 10px;
+}
+
+.card-produto {
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    width: 49%;
+    padding: 16px;
+    position: relative;
+    height: 160px;
+    transition: transform 0.2s;
+}
+
+.card-produto:hover {
+    transform: translateY(-3px);
+}
+
+.tag-tipo {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #f4e2b6;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+    color: #333;
+}
+
+.card-titulo {
+    font-size: 18px;
+    font-weight: bold;
+    margin: 0 0 8px 0;
+}
+
+.card-descricao {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 12px;
+    min-height: 40px;
+}
+
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.preco {
+    font-size: 16px;
+    color: #c13232;
+    font-weight: bold;
+}
+
+.btn-adicionar {
+    background-color: #ff7a45;
+    color: #fff;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-adicionar:hover {
+    background-color: #e66634;
+}
+
+.tabs-container {
+    background-color: #f6f1e8;
+    display: inline-flex;
+    padding: 4px;
+    border-radius: 12px;
+    gap: 4px;
+}
+
+.tab-button {
+    padding: 6px 16px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 500;
+    color: #6c6c6c;
+    background-color: transparent;
+    transition: background-color 0.2s ease;
+}
+
+.tab-button.active {
+    background-color: #ffffff;
+    font-weight: bold;
+    color: #000000;
+}
+  
+.info-mesa-card {
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 10px;
+    max-width: 800px;
+}
+
+.info-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+.info-header h2 {
+    margin: 0;
+    font-size: 1.6rem;
+    color: #d32f2f;
+}
+
+.data-criacao {
+    font-size: 0.9rem;
+    color: #888;
+}
+
+.info-body {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.info-item {
+    font-size: 1rem;
+    color: #333;
+    min-width: 200px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.tabs-container{
+    border: solid 1px #cbcbcb;
 }
 

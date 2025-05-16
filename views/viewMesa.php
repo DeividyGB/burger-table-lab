@@ -5,6 +5,7 @@
         $mesa_id = $_GET['id'];
         $cliente_nome = $_GET['cliente_nome'];
         $created_at = $_GET['created_at'];
+        $people_count = $_GET['count_people'];
 
     } else {
         echo "Dados do pedido não encontrados.";
@@ -116,9 +117,132 @@
                 <div class="avatar cs">DPM</div>
             </div>
         </div>
-        <div class="main-content">
+            <div class="main-content">
 
+                <div class="info-mesa-card">
+                    <div class="info-header">
+                        <h2>Mesa IDº <?= htmlspecialchars($mesa_id) ?></h2>
+                        <span class="data-criacao"><i>Criado às: </i> <?= date('d/m/Y H:i', strtotime($created_at)) ?></span>
+                    </div>
+                    <div class="info-body">
+                        <div class="info-item">
+                            <strong><i class="ph ph-user"></i> Cliente:</strong> <?= htmlspecialchars($cliente_nome) ?>
+                        </div>
+                        <div class="info-item">
+                            <strong><i class="ph ph-users"></i> Pessoas:</strong> <?= (int)$people_count ?>
+                        </div>
+                    </div>
+                </div>
+                    
+                <div class="d-flex gap-3 flex-column h-100">
+                    <div class="tabs-container p-2">
+                        <div class="tab-button active" data-tab="pedido">Pedido</div>
+                        <div class="tab-button" data-tab="cardapio">Cardápio</div>
+                        <div class="tab-button" data-tab="conta">Conta</div>
+                    </div>
+
+                    <div class="tab-content" id="pedido">
+                        Conteúdo da aba Pedido
+                    </div>
+
+                    <div class="tab-content" id="cardapio" style="display: none;">
+                        <?php
+                        include('../Functions/connectionDB.php');
+
+                        $sql = "SELECT * FROM products";
+                        $result = $conn->query($sql);
+
+                        $produtos = [];
+                        $categorias = [
+                            'hamburgueres' => [],
+                            'acompanhamentos' => [],
+                            'bebidas' => [],
+                            'sobremesas' => []
+                        ];
+
+                        if ($result->num_rows > 0) {
+                            while ($row = $result->fetch_assoc()) {
+                                $produtos[] = $row;
+
+                                $tipo = strtolower($row['type']);
+                                if (isset($categorias[$tipo])) {
+                                    $categorias[$tipo][] = $row;
+                                }
+                            }
+                        }
+
+                        function gerarCard($produto) {
+                            $nome = htmlspecialchars($produto['name']);
+                            $descricao = htmlspecialchars($produto['description']);
+                            $preco = number_format($produto['price'], 2, ',', '.');
+                            $tipo = ucfirst($produto['type']);
+
+                            return <<<HTML
+                            <div class="card-produto">
+                                <div class="tag-tipo">{$tipo}</div>
+                                <div class="card-conteudo">
+                                    <h3 class="card-titulo">{$nome}</h3>
+                                    <p class="card-descricao">{$descricao}</p>
+                                    <div class="card-footer">
+                                        <span class="preco">R$ {$preco}</span>
+                                        <button class="btn-adicionar">+ Adicionar</button>
+                                    </div>
+                                </div>
+                            </div>
+                            HTML;
+                        }
+                        ?>
+
+                        <!-- Abas internas de categorias -->
+                        <div class="tabs-buttons mb-2">
+                            <button class="active-tab" data-tab="tab-todos"><i class="ph ph-bowl-food"></i> Todos</button>
+                            <button data-tab="tab-hamburgueres"><i class="ph ph-hamburger"></i> Hamburgueres</button>
+                            <button data-tab="tab-acompanhamentos"><i class="ph ph-bread"></i> Acompanhamentos</button>
+                            <button data-tab="tab-bebidas"><i class="ph ph-martini"></i> Bebidas</button>
+                            <button data-tab="tab-sobremesas"><i class="ph ph-ice-cream"></i> Sobremesas</button>
+                        </div>
+
+                        <!-- Conteúdo das categorias -->
+                        <section class="card-section">
+                            <section id="tab-todos" class="tab-section active-tab-section">
+                                <?php foreach ($produtos as $produto): ?>
+                                    <?= gerarCard($produto) ?>
+                                <?php endforeach; ?>
+                            </section>
+
+                            <section id="tab-hamburgueres" class="tab-section">
+                                <?php foreach ($categorias['hamburgueres'] as $produto): ?>
+                                    <?= gerarCard($produto) ?>
+                                <?php endforeach; ?>
+                            </section>
+
+                            <section id="tab-acompanhamentos" class="tab-section">
+                                <?php foreach ($categorias['acompanhamentos'] as $produto): ?>
+                                    <?= gerarCard($produto) ?>
+                                <?php endforeach; ?>
+                            </section>
+
+                            <section id="tab-bebidas" class="tab-section">
+                                <?php foreach ($categorias['bebidas'] as $produto): ?>
+                                    <?= gerarCard($produto) ?>
+                                <?php endforeach; ?>
+                            </section>
+
+                            <section id="tab-sobremesas" class="tab-section">
+                                <?php foreach ($categorias['sobremesas'] as $produto): ?>
+                                    <?= gerarCard($produto) ?>
+                                <?php endforeach; ?>
+                            </section>
+                        </section>
+                    </div>
+
+                    <!-- Aba Conta -->
+                    <div class="tab-content" id="conta" style="display: none;">
+                        Conteúdo da aba Conta
+                    </div>
+                </div>
         </div>
+
         <footer>
             <div class="d-flex flex-column align-items-center">
                 <span>🍔 Sistema de Pedidos - Burger Table © <?php echo date('Y'); ?>. Todos os direitos reservados.</span>
@@ -130,9 +254,37 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js" integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq" crossorigin="anonymous"></script>
     <script>
     $('#toggleSidebar').on('click', function () {
-        console.log("ai ai ui ui");
         $('.sidebar').toggleClass('hidden');
     });
+
+        $(document).ready(function () {
+        $('.tabs-buttons button').on('click', function () {
+            var tabId = $(this).data('tab');
+
+            $('.tabs-buttons button').removeClass('active-tab');
+            $(this).addClass('active-tab');
+
+            $('.tab-section').removeClass('active-tab-section');
+            $('#' + tabId).addClass('active-tab-section');
+        });
+    });
+
+    $(document).ready(function () {
+    $('.tab-button').on('click', function () {
+      const tab = $(this).data('tab');
+
+      $('.tab-content').hide();
+
+      $('.tab-button').removeClass('active');
+
+      $('#' + tab).show();
+
+      $(this).addClass('active');
+    });
+  });
+
     </script>
+
+    
 </body>
 </html>
