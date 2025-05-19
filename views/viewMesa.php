@@ -1,8 +1,8 @@
 <?php
     session_start();
 
-    if (isset($_GET['id'], $_GET['cliente_nome'], $_GET['created_at'])) {
-        $mesa_id = $_GET['id'];
+    if (isset($_GET['session_id'], $_GET['cliente_nome'], $_GET['created_at'])) {
+        $sessao_id = $_GET['session_id'];
         $cliente_nome = $_GET['cliente_nome'];
         $created_at = $_GET['created_at'];
         $people_count = $_GET['count_people'];
@@ -44,7 +44,7 @@
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label">Numero da mesa</label>
-                        <select name="table_session_id">
+                        <select name="session_id">
                             <option value="">Selecione...</option>
                             <option value="1">1</option>
                             <option value="2">2</option>
@@ -121,7 +121,7 @@
 
                 <div class="info-mesa-card">
                     <div class="info-header">
-                        <h2>Mesa IDº <?= htmlspecialchars($mesa_id) ?></h2>
+                        <h2>Sessão IDº <?= htmlspecialchars($sessao_id) ?></h2>
                         <span class="data-criacao"><i>Criado às: </i> <?= date('d/m/Y H:i', strtotime($created_at)) ?></span>
                     </div>
                     <div class="info-body">

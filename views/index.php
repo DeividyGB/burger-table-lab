@@ -72,12 +72,12 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
                     </div>
                     <hr class="hr">
-                    <form action="/burger-table/Functions/insertOrder.php" method="POST">
+                    <form action="/burger-table-lab/Functions/insertOrder.php" method="POST">
                         <div class="modal-body">
                             <div class="row">
                                 <div class="col-md-6">
                                     <label class="form-label">Número da mesa.</label>
-                                    <select name="table_session_id">
+                                    <select name="table_id">
                                         <option value="">Selecione...</option>
                                         <option value="1">1</option>
                                         <option value="2">2</option>
