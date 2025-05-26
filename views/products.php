@@ -24,7 +24,7 @@
                 <i class="ph ph-house-line"></i>
                 Pedidos
             </a>
-            <a href="#" class="menu-item">
+            <a href="viewMesa.php?session_id=1&count_people=0&created_at=2000-01-01+00%3A46%3A46&cliente_nome=none" class="menu-item">
                 <i class="ph ph-fork-knife"></i>
                 Mesas
             </a>
@@ -48,7 +48,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
             </div>
             <hr class="hr">
-            <form action="/burger-table/Functions/insertProduct.php" method="POST">
+            <form action="/burger-table-lab/Functions/insertProduct.php" method="POST">
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-md-6">
@@ -99,7 +99,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
                 </div>
                 <hr class="hr">
-                <form action="/burger-table/Functions/updateProduct.php" method="POST">
+                <form action="/burger-table-lab/Functions/updateProduct.php" method="POST">
                     <div class="modal-body">
                         <input type="hidden" name="product_id" id="editProductId">
                         <div class="row">
@@ -209,14 +209,14 @@
                     echo '<div class="tab-content" id="categoryTabsContent">';
                     $i = 0;
                     foreach ($categorias as $categoria => $produtos) {
-                        $showActive = $i === 0 ? 'show active' : '';
+                        $showActive = $i == 0 ? 'show active' : '';
                         echo '<div class="tab-pane fade ' . $showActive . '" id="content-' . $i . '" role="tabpanel">';
                         echo '<div class="d-flex flex-wrap gap-3">';
 
                         foreach ($produtos as $produto) {
                             echo '<div class="product-card border rounded p-3 shadow-sm flex-grow-1" style="width: 250px; background: #fff;" data-name="' . strtolower(htmlspecialchars($produto['name'])) . '">';
 
-                            echo '<h5 style="gap: 5px"><span class="fw-bold">Produto:</span> <span class="text-primary-light">' . htmlspecialchars($produto['name']) . '.</span></h5>';
+                            echo '<h5 style="gap: 5px"><span class="fw-bold">Produto:</span> <span class="text-primary-light">' . htmlspecialchars($produto['name']) . '</span></h5>';
                             echo '<hr>';
                             echo '<p class="description"><span class="fw-bold">Descrição:</span> ' . htmlspecialchars($produto['description']) . '</p>';
                             echo '<p class="price text-success fw-bold align-self-end">R$ ' . number_format($produto['price'], 2, ',', '.') . '</p>';

@@ -79,11 +79,11 @@
         </div>
 
         <div class="menu">
-            <a href="index.php"  class="menu-item active">
+            <a href="index.php"  class="menu-item">
                 <i class="ph ph-house-line"></i>
                 Pedidos
             </a>
-            <a href="#" class="menu-item">
+            <a href="viewMesa.php?session_id=1&count_people=0&created_at=2000-01-01+00%3A46%3A46&cliente_nome=none" class="menu-item active">
                 <i class="ph ph-fork-knife"></i>
                 Mesas
             </a>
@@ -154,10 +154,10 @@
 
                         $produtos = [];
                         $categorias = [
-                            'hamburgueres' => [],
+                            'hamburger' => [],
                             'acompanhamentos' => [],
                             'bebidas' => [],
-                            'sobremesas' => []
+                            'doces' => []
                         ];
 
                         if ($result->num_rows > 0) {
@@ -211,7 +211,7 @@
                             </section>
 
                             <section id="tab-hamburgueres" class="tab-section">
-                                <?php foreach ($categorias['hamburgueres'] as $produto): ?>
+                                <?php foreach ($categorias['hamburger'] as $produto): ?>
                                     <?= gerarCard($produto) ?>
                                 <?php endforeach; ?>
                             </section>
@@ -229,7 +229,7 @@
                             </section>
 
                             <section id="tab-sobremesas" class="tab-section">
-                                <?php foreach ($categorias['sobremesas'] as $produto): ?>
+                                <?php foreach ($categorias['doces'] as $produto): ?>
                                     <?= gerarCard($produto) ?>
                                 <?php endforeach; ?>
                             </section>
