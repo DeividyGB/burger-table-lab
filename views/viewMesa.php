@@ -8,7 +8,7 @@
         $people_count = $_GET['count_people'];
 
     } else {
-        echo "Dados do pedido não encontrados.";
+        echo "Dadosnão encontrados.";
     }
 ?>
 
@@ -240,9 +240,6 @@
         </div>
     </div>
 
-
-    
-
     <div class="sidebar">
         <div class="logo-container">
             <div class="logo">
@@ -296,16 +293,15 @@
             <?php
             include('../Functions/connectionDB.php');
             
-            // Verificar se a sessão está fechada
-            $sql_session_status = "SELECT closed_at FROM tables_sessions WHERE id = ?";
-            $stmt_session_status = $conn->prepare($sql_session_status);
-            $stmt_session_status->bind_param("i", $mesa_id);
-            $stmt_session_status->execute();
-            $result_session_status = $stmt_session_status->get_result();
-            $session_status = $result_session_status->fetch_assoc();
-            
-            $is_closed = !empty($session_status['closed_at']);
-            $closed_at = $session_status['closed_at'];
+                $sql_session_status = "SELECT closed_at FROM tables_sessions WHERE id = ?";
+                $stmt_session_status = $conn->prepare($sql_session_status);
+                $stmt_session_status->bind_param("i", $mesa_id);
+                $stmt_session_status->execute();
+                $result_session_status = $stmt_session_status->get_result();
+                $session_status = $result_session_status->fetch_assoc();
+                
+                $is_closed = !empty($session_status['closed_at']);
+                $closed_at = $session_status['closed_at'];
             ?>
             
             <div class="info-mesa-card">
