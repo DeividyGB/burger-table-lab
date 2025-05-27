@@ -39,7 +39,6 @@
         </a>
     </div>
 
-    <!-- Modais -->
     <div class="modal fade" id="newProductModal" tabindex="-1" aria-labelledby="newProductModal" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content custom-modal">
@@ -190,7 +189,7 @@
                         $categorias[$categoria][] = $row;
                     }
 
-                    // Abas
+                    //Aqui ta começando as abas
                     echo '<ul class="nav nav-tabs mb-3" id="categoryTabs" role="tablist" style="gap: 5px">';
                     $i = 0;
                     foreach ($categorias as $categoria => $produtos) {
@@ -221,7 +220,7 @@
                             echo '<p class="description"><span class="fw-bold">Descrição:</span> ' . htmlspecialchars($produto['description']) . '</p>';
                             echo '<p class="price text-success fw-bold align-self-end">R$ ' . number_format($produto['price'], 2, ',', '.') . '</p>';
 
-                            // Botões
+                            // Aqui ta os botões
                             echo '<div class="d-flex justify-content-between mt-3">';
 
                             echo '<button class="button-secondary" data-bs-toggle="modal" data-bs-target="#editProductModal" 

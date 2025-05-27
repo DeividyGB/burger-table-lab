@@ -173,7 +173,6 @@
     </style>
 </head>
 <body>
-    <!-- Modal -->
     <div class="modal fade" id="addProductModal" tabindex="-1" aria-labelledby="addProductModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content custom-modal">
@@ -305,7 +304,6 @@
 
                 <div class="tab-content" id="pedido">
                     <?php
-                    // Buscar itens do pedido
                     include('../Functions/connectionDB.php');
                     
                     $sql_pedido = "SELECT oi.*, p.name as product_name, p.description 
@@ -466,7 +464,6 @@
                     </section>
                 </div>
 
-                <!-- Aba Conta -->
                 <div class="tab-content" id="conta" style="display: none;">
                     <div class="conta-resumo">
                         <div class="d-flex justify-content-between align-items-center mb-3">

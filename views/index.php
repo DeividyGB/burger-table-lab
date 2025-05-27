@@ -2,12 +2,10 @@
 session_start();
 include('../Functions/connectionDB.php');
 
-// Filtros
 $filtro_mesa = isset($_GET['mesa']) ? $_GET['mesa'] : '';
 $filtro_cliente = isset($_GET['cliente']) ? $_GET['cliente'] : '';
 $filtro_data = isset($_GET['data']) ? $_GET['data'] : '';
 
-// Construir query com filtros
 $where_conditions = [];
 $params = [];
 $types = '';
@@ -35,7 +33,6 @@ if (!empty($where_conditions)) {
     $where_clause = 'WHERE ' . implode(' AND ', $where_conditions);
 }
 
-// Query principal para buscar pedidos
 $sql = "SELECT oi.id, oi.quantity, oi.price, oi.created_at,
                p.name as product_name, 
                p.type as product_type, 
@@ -63,7 +60,6 @@ while ($row = $result->fetch_assoc()) {
     $orders[] = $row;
 }
 
-// Estatísticas gerais
 $sql_stats = "SELECT 
     COUNT(DISTINCT oi.table_session_id) as total_mesas,
     COUNT(*) as total_pedidos,
@@ -431,7 +427,6 @@ $stats = $stmt_stats->get_result()->fetch_assoc();
                 </form>
             </div>
 
-            <!-- Lista de Pedidos -->
             <div class="orders-container">
                 <?php if (count($orders) > 0): ?>
                     <h4 class="mb-3">
@@ -555,14 +550,12 @@ $stats = $stmt_stats->get_result()->fetch_assoc();
             $('.sidebar').toggleClass('hidden');
         });
 
-        // Auto-submit do formulário quando mudança nos filtros (opcional)
         $('.filter-form input[type="date"]').on('change', function() {
             if (confirm('Aplicar filtro automaticamente?')) {
                 $(this).closest('form').submit();
             }
         });
 
-        // Animação suave para os cards
         $(document).ready(function() {
             $('.order-card').each(function(index) {
                 $(this).css('animation-delay', (index * 0.1) + 's');

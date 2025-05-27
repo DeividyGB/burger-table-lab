@@ -9,7 +9,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $quantity = intval($_POST['quantity']);
         $price = floatval($_POST['price']);
 
-        // Validações básicas
         if ($table_session_id <= 0 || $product_id <= 0 || $quantity <= 0 || $price <= 0) {
             echo "Erro: Valores inválidos fornecidos.";
             echo "<br>table_session_id: $table_session_id";
@@ -27,7 +26,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($stmt->execute()) {
                 $stmt->close();
                 
-                // Buscar os dados da sessão para fazer o redirect correto
                 $sql_session = "SELECT ts.id, ts.client_name, ts.opened_at, ts.people_count 
                                FROM tables_sessions ts 
                                WHERE ts.id = ?";
