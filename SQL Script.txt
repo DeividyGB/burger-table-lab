@@ -1,45 +1,5 @@
-CREATE TABLE IF NOT EXISTS products(
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    name INT,
-    price FLOAT,
-    description VARCHAR (100),
-    type VARCHAR(20)
-);
-
-CREATE TABLE IF NOT EXISTS tables(
-id INT PRIMARY KEY AUTO_INCREMENT,
-    table_number INT
-);
-
-CREATE TABLE IF NOT EXISTS tables_sessions(
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    table_id INT,
-    opened_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    closed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
-
-ALTER TABLE tables_sessions ADD CONSTRAINT fk_sess_table
-FOREIGN KEY (table_id) REFERENCES tables(id);
-
-ALTER TABLE orders ADD CONSTRAINT fk_order_sess
-FOREIGN KEY (table_session_id) REFERENCES tables_sessions(id);
-
-DELETE FROM tables WHERE table_number IN (1,2,3,4,5,6,7,8,9,10);
-INSERT INTO tables(table_number) VALUES (1);
-INSERT INTO tables(table_number) VALUES (2);
-INSERT INTO tables(table_number) VALUES (3);
-INSERT INTO tables(table_number) VALUES (4);
-INSERT INTO tables(table_number) VALUES (5);
-INSERT INTO tables(table_number) VALUES (6);
-INSERT INTO tables(table_number) VALUES (7);
-INSERT INTO tables(table_number) VALUES (8);
-INSERT INTO tables(table_number) VALUES (9);
-INSERT INTO tables(table_number) VALUES (10);
-
-ALTER TABLE products MODIFY COLUMN name VARCHAR(50);
-
 DROP TABLE IF EXISTS order_items;
-DROP TABLE IF EXISTS orders; -- Antiga (não usaremos mais)
+DROP TABLE IF EXISTS order_history;
 DROP TABLE IF EXISTS tables_sessions;
 DROP TABLE IF EXISTS products;
 DROP TABLE IF EXISTS tables;
@@ -78,8 +38,8 @@ CREATE TABLE order_items (
     FOREIGN KEY (product_id) REFERENCES products(id)
 );
 
-CREATE TABLE IF NOT EXISTS order_history (
-    id INT PRIMARY KEY AUTO_INCREMENT,
+CREATE TABLE order_history (
+    id INT AUTO_INCREMENT PRIMARY KEY,
     table_session_id INT NOT NULL,
     cliente_nome VARCHAR(255) NOT NULL,
     people_count INT NOT NULL DEFAULT 1,
@@ -88,9 +48,13 @@ CREATE TABLE IF NOT EXISTS order_history (
     opened_at DATETIME NOT NULL,
     closed_at DATETIME NOT NULL,
     report_file VARCHAR(255) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (table_session_id) REFERENCES tables_sessions(id)
 );
 
 CREATE INDEX idx_order_history_table_session ON order_history(table_session_id);
 CREATE INDEX idx_order_history_closed_at ON order_history(closed_at);
 CREATE INDEX idx_order_history_cliente ON order_history(cliente_nome);
+
+INSERT INTO tables (table_number)
+VALUES (1), (2), (3), (4), (5), (6), (7), (8), (9), (10);
