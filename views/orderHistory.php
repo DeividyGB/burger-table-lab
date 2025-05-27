@@ -2,17 +2,15 @@
 session_start();
 include('Functions/connectionDB.php');
 
-// Paginação
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $limit = 20;
 $offset = ($page - 1) * $limit;
 
-// Filtros
 $filter_date_start = $_GET['date_start'] ?? '';
 $filter_date_end = $_GET['date_end'] ?? '';
 $filter_cliente = $_GET['cliente'] ?? '';
 
-// Query base
+
 $where_conditions = [];
 $params = [];
 $param_types = '';
@@ -40,7 +38,6 @@ if (!empty($where_conditions)) {
     $where_clause = 'WHERE ' . implode(' AND ', $where_conditions);
 }
 
-// Contar total de registros
 $count_sql = "SELECT COUNT(*) as total FROM order_history $where_clause";
 $count_stmt = $conn->prepare($count_sql);
 if (!empty($params)) {
@@ -50,7 +47,6 @@ $count_stmt->execute();
 $total_records = $count_stmt->get_result()->fetch_assoc()['total'];
 $total_pages = ceil($total_records / $limit);
 
-// Buscar registros
 $sql = "SELECT * FROM order_history $where_clause ORDER BY closed_at DESC LIMIT ? OFFSET ?";
 $params[] = $limit;
 $params[] = $offset;
@@ -61,7 +57,6 @@ $stmt->bind_param($param_types, ...$params);
 $stmt->execute();
 $result = $stmt->get_result();
 
-// Estatísticas gerais
 $stats_sql = "SELECT 
     COUNT(*) as total_orders,
     SUM(total_amount) as total_revenue,
@@ -70,7 +65,7 @@ $stats_sql = "SELECT
     FROM order_history $where_clause";
 $stats_stmt = $conn->prepare($stats_sql);
 if (!empty($where_conditions)) {
-    $stats_param_types = substr($param_types, 0, -2); // Remove os últimos 'ii' (limit e offset)
+    $stats_param_types = substr($param_types, 0, -2);
     $stats_params = array_slice($params, 0, -2);
     if (!empty($stats_params)) {
         $stats_stmt->bind_param($stats_param_types, ...$stats_params);
@@ -241,7 +236,6 @@ $stats = $stats_stmt->get_result()->fetch_assoc();
         </div>
         
         <div class="main-content">
-            <!-- Estatísticas -->
             <div class="stats-cards">
                 <div class="stats-card">
                     <h3><?= number_format($stats['total_orders'] ?? 0) ?></h3>
@@ -261,7 +255,6 @@ $stats = $stats_stmt->get_result()->fetch_assoc();
                 </div>
             </div>
 
-            <!-- Filtros -->
             <div class="filters-card">
                 <h5 class="mb-3"><i class="ph ph-funnel"></i> Filtros</h5>
                 <form method="GET" class="row g-3">
@@ -288,7 +281,6 @@ $stats = $stats_stmt->get_result()->fetch_assoc();
                 </form>
             </div>
 
-            <!-- Tabela de Histórico -->
             <div class="history-table">
                 <table class="table table-hover mb-0">
                     <thead>
@@ -350,7 +342,6 @@ $stats = $stats_stmt->get_result()->fetch_assoc();
                 </table>
             </div>
 
-            <!-- Paginação -->
             <?php if ($total_pages > 1): ?>
                 <div class="pagination-wrapper">
                     <nav>
@@ -393,14 +384,12 @@ $stats = $stats_stmt->get_result()->fetch_assoc();
             $('.sidebar').toggleClass('hidden');
         });
 
-        // Auto-submit form quando as datas mudarem
         $('input[name="date_start"], input[name="date_end"]').on('change', function() {
             if ($(this).val()) {
                 $(this).closest('form').submit();
             }
         });
 
-        // Tooltip para botões de download
         $('[title]').tooltip();
     </script>
 </body>
