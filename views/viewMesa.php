@@ -385,8 +385,8 @@
                         
                         if ($result_history->num_rows > 0) {
                             $history_data = $result_history->fetch_assoc();
-                            $total_pedido = $history_data['total_amount'];
-                            $items_count = $history_data['items_count'];
+                            $total_pedido = floatval($history_data['total_amount']);
+                            $items_count = intval($history_data['items_count']);
                             
                             // Tentar ler o arquivo CSV para mostrar os itens
                             $csv_file = '../reports/' . $history_data['report_file'];
@@ -397,11 +397,17 @@
                                 $header = fgetcsv($file_handle, 1000, ","); // Ler cabeçalho
                                 
                                 while (($data = fgetcsv($file_handle, 1000, ",")) !== FALSE) {
+                                    // Pular linhas vazias ou de total
+                                    if (empty($data[1]) || $data[0] === 'TOTAL' || $data[0] === 'CLIENTE' || $data[0] === 'PESSOAS' || $data[0] === 'VALOR_POR_PESSOA') {
+                                        continue;
+                                    }
+                                    
                                     $itens_pedido[] = [
                                         'product_name' => $data[1] ?? 'Produto',
-                                        'quantity' => $data[2] ?? 1,
-                                        'price' => $data[3] ?? 0,
-                                        'created_at' => $data[4] ?? $history_data['closed_at']
+                                        'quantity' => intval($data[2] ?? 1),
+                                        'price' => floatval($data[3] ?? 0),
+                                        'created_at' => $data[4] ?? $history_data['closed_at'],
+                                        'description' => '' // Não temos descrição no CSV
                                     ];
                                 }
                                 fclose($file_handle);
@@ -428,22 +434,26 @@
                         
                         while ($item = $result_pedido->fetch_assoc()) {
                             $itens_pedido[] = $item;
-                            $total_pedido += ($item['price'] * $item['quantity']);
+                            $total_pedido += (floatval($item['price']) * intval($item['quantity']));
                         }
                     }
                     
                     if (count($itens_pedido) > 0): ?>
                         <div class="pedidos-lista">
-                            <?php foreach ($itens_pedido as $item): ?>
+                            <?php foreach ($itens_pedido as $item): 
+                                $item_price = floatval($item['price']);
+                                $item_quantity = intval($item['quantity']);
+                                $item_total = $item_price * $item_quantity;
+                            ?>
                                 <div class="pedido-item <?= $is_closed ? 'closed' : '' ?>">
                                     <div class="pedido-header">
                                         <div class="d-flex align-items-center gap-2">
                                             <span class="produto-nome"><?= htmlspecialchars($item['product_name']) ?></span>
-                                            <span class="produto-quantidade">x<?= $item['quantity'] ?></span>
+                                            <span class="produto-quantidade">x<?= $item_quantity ?></span>
                                         </div>
                                         <div class="d-flex align-items-center gap-2">
-                                            <span class="produto-preco">R$ <?= number_format($item['price'] * $item['quantity'], 2, ',', '.') ?></span>
-                                            <?php if (!$is_closed): ?>
+                                            <span class="produto-preco">R$ <?= number_format($item_total, 2, ',', '.') ?></span>
+                                            <?php if (!$is_closed && isset($item['id'])): ?>
                                                 <form method="POST" action="/burger-table/Functions/removeOrderItem.php" style="display: inline;">
                                                     <input type="hidden" name="item_id" value="<?= $item['id'] ?>">
                                                     <input type="hidden" name="table_session_id" value="<?= $mesa_id ?>">
@@ -634,18 +644,22 @@
                                     <?php 
                                     $stats_categoria = [];
                                     foreach ($itens_pedido as $item): 
+                                        $item_price = floatval($item['price']);
+                                        $item_quantity = intval($item['quantity']);
+                                        $item_total = $item_price * $item_quantity;
+                                        
                                         $categoria = ucfirst($item['product_name'][0] ?? 'Outros');
                                         if (!isset($stats_categoria[$categoria])) {
                                             $stats_categoria[$categoria] = 0;
                                         }
-                                        $stats_categoria[$categoria] += ($item['price'] * $item['quantity']);
+                                        $stats_categoria[$categoria] += $item_total;
                                     ?>
                                         <div class="conta-item d-flex justify-content-between align-items-center py-2">
                                             <div>
                                                 <span class="fw-medium"><?= htmlspecialchars($item['product_name']) ?></span>
-                                                <small class="text-muted d-block">Qtd: <?= $item['quantity'] ?> × R$ <?= number_format($item['price'], 2, ',', '.') ?></small>
+                                                <small class="text-muted d-block">Qtd: <?= $item_quantity ?> × R$ <?= number_format($item_price, 2, ',', '.') ?></small>
                                             </div>
-                                            <span class="fw-bold">R$ <?= number_format($item['price'] * $item['quantity'], 2, ',', '.') ?></span>
+                                            <span class="fw-bold">R$ <?= number_format($item_total, 2, ',', '.') ?></span>
                                         </div>
                                     <?php endforeach; ?>
                                     
