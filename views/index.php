@@ -218,7 +218,7 @@ $total_clientes = ($stats['clientes_ativos'] ?? 0) + ($stats['clientes_fechados'
         }
 
         .order-card.fechado {
-            border-left: 4px solid #6c757d;
+            border-left: 4px solid #c11e1e;
             background: #f8f9fa;
         }
 
@@ -227,7 +227,7 @@ $total_clientes = ($stats['clientes_ativos'] ?? 0) + ($stats['clientes_fechados'
         }
 
         .mesa-badge {
-            background: #007bff;
+            background: #c11e1e;
             color: white;
             padding: 0.25rem 0.75rem;
             border-radius: 20px;

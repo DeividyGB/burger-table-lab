@@ -376,7 +376,6 @@
                 <div class="tab-content" id="pedido">
                     <?php
                     if ($is_closed) {
-                        // Buscar dados do histórico
                         $sql_history = "SELECT * FROM order_history WHERE table_session_id = ?";
                         $stmt_history = $conn->prepare($sql_history);
                         $stmt_history->bind_param("i", $mesa_id);
@@ -388,16 +387,14 @@
                             $total_pedido = floatval($history_data['total_amount']);
                             $items_count = intval($history_data['items_count']);
                             
-                            // Tentar ler o arquivo CSV para mostrar os itens
                             $csv_file = '../reports/' . $history_data['report_file'];
                             $itens_pedido = [];
                             
                             if (file_exists($csv_file)) {
                                 $file_handle = fopen($csv_file, 'r');
-                                $header = fgetcsv($file_handle, 1000, ","); // Ler cabeçalho
+                                $header = fgetcsv($file_handle, 1000, ",");
                                 
                                 while (($data = fgetcsv($file_handle, 1000, ",")) !== FALSE) {
-                                    // Pular linhas vazias ou de total
                                     if (empty($data[1]) || $data[0] === 'TOTAL' || $data[0] === 'CLIENTE' || $data[0] === 'PESSOAS' || $data[0] === 'VALOR_POR_PESSOA') {
                                         continue;
                                     }
@@ -407,7 +404,7 @@
                                         'quantity' => intval($data[2] ?? 1),
                                         'price' => floatval($data[3] ?? 0),
                                         'created_at' => $data[4] ?? $history_data['closed_at'],
-                                        'description' => '' // Não temos descrição no CSV
+                                        'description' => ''
                                     ];
                                 }
                                 fclose($file_handle);
