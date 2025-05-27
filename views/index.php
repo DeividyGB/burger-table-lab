@@ -5,76 +5,148 @@ include('../Functions/connectionDB.php');
 $filtro_mesa = isset($_GET['mesa']) ? $_GET['mesa'] : '';
 $filtro_cliente = isset($_GET['cliente']) ? $_GET['cliente'] : '';
 $filtro_data = isset($_GET['data']) ? $_GET['data'] : '';
+$filtro_status = isset($_GET['status']) ? $_GET['status'] : '';
 
-$where_conditions = [];
-$params = [];
-$types = '';
+$where_conditions_active = [];
+$where_conditions_history = [];
+$params_active = [];
+$params_history = [];
+$types_active = '';
+$types_history = '';
 
+// Filtros para pedidos ativos
 if (!empty($filtro_mesa)) {
-    $where_conditions[] = "ts.table_id = ?";
-    $params[] = $filtro_mesa;
-    $types .= 'i';
+    $where_conditions_active[] = "ts.table_id = ?";
+    $params_active[] = $filtro_mesa;
+    $types_active .= 'i';
+    
+    $where_conditions_history[] = "oh.table_session_id IN (SELECT id FROM tables_sessions WHERE table_id = ?)";
+    $params_history[] = $filtro_mesa;
+    $types_history .= 'i';
 }
 
 if (!empty($filtro_cliente)) {
-    $where_conditions[] = "ts.client_name LIKE ?";
-    $params[] = '%' . $filtro_cliente . '%';
-    $types .= 's';
+    $where_conditions_active[] = "ts.client_name LIKE ?";
+    $params_active[] = '%' . $filtro_cliente . '%';
+    $types_active .= 's';
+    
+    $where_conditions_history[] = "oh.cliente_nome LIKE ?";
+    $params_history[] = '%' . $filtro_cliente . '%';
+    $types_history .= 's';
 }
 
 if (!empty($filtro_data)) {
-    $where_conditions[] = "DATE(oi.created_at) = ?";
-    $params[] = $filtro_data;
-    $types .= 's';
+    $where_conditions_active[] = "DATE(oi.created_at) = ?";
+    $params_active[] = $filtro_data;
+    $types_active .= 's';
+    
+    $where_conditions_history[] = "DATE(oh.closed_at) = ?";
+    $params_history[] = $filtro_data;
+    $types_history .= 's';
 }
 
-$where_clause = '';
-if (!empty($where_conditions)) {
-    $where_clause = 'WHERE ' . implode(' AND ', $where_conditions);
+$where_clause_active = '';
+if (!empty($where_conditions_active)) {
+    $where_clause_active = 'WHERE ' . implode(' AND ', $where_conditions_active);
 }
 
-$sql = "SELECT oi.id, oi.quantity, oi.price, oi.created_at,
-               p.name as product_name, 
-               p.type as product_type, 
-               p.description as product_description,
-               ts.table_id,
-               ts.client_name,
-               ts.people_count,
-               ts.opened_at,
-               ts.closed_at
-        FROM order_items oi 
-        LEFT JOIN products p ON oi.product_id = p.id 
-        LEFT JOIN tables_sessions ts ON oi.table_session_id = ts.id
-        $where_clause
-        ORDER BY oi.created_at DESC";
-
-$stmt = $conn->prepare($sql);
-if (!empty($params)) {
-    $stmt->bind_param($types, ...$params);
+$where_clause_history = '';
+if (!empty($where_conditions_history)) {
+    $where_clause_history = 'WHERE ' . implode(' AND ', $where_conditions_history);
 }
-$stmt->execute();
-$result = $stmt->get_result();
 
 $orders = [];
-while ($row = $result->fetch_assoc()) {
-    $orders[] = $row;
+
+// Buscar pedidos ativos (não fechados) apenas se não estiver filtrando por "fechado"
+if ($filtro_status !== 'fechado') {
+    $sql_active = "SELECT oi.id, oi.quantity, oi.price, oi.created_at,
+                   p.name as product_name, 
+                   p.type as product_type, 
+                   p.description as product_description,
+                   ts.table_id,
+                   ts.client_name,
+                   ts.people_count,
+                   ts.opened_at,
+                   ts.closed_at,
+                   'ativo' as status_pedido,
+                   ts.id as session_id
+            FROM order_items oi 
+            LEFT JOIN products p ON oi.product_id = p.id 
+            LEFT JOIN tables_sessions ts ON oi.table_session_id = ts.id
+            $where_clause_active
+            AND ts.closed_at IS NULL
+            ORDER BY oi.created_at DESC";
+
+    $stmt_active = $conn->prepare($sql_active);
+    if (!empty($params_active)) {
+        $stmt_active->bind_param($types_active, ...$params_active);
+    }
+    $stmt_active->execute();
+    $result_active = $stmt_active->get_result();
+
+    while ($row = $result_active->fetch_assoc()) {
+        $orders[] = $row;
+    }
 }
 
+// Buscar pedidos do histórico (fechados) apenas se não estiver filtrando por "ativo"
+if ($filtro_status !== 'ativo') {
+    $sql_history = "SELECT 
+                    oh.id,
+                    1 as quantity,
+                    oh.total_amount as price,
+                    oh.closed_at as created_at,
+                    CONCAT('Conta Fechada - ', oh.items_count, ' itens') as product_name,
+                    'fechado' as product_type,
+                    CONCAT('Total: R$ ', FORMAT(oh.total_amount, 2, 'pt_BR')) as product_description,
+                    ts.table_id,
+                    oh.cliente_nome as client_name,
+                    oh.people_count,
+                    oh.opened_at,
+                    oh.closed_at,
+                    'fechado' as status_pedido,
+                    oh.table_session_id as session_id,
+                    oh.report_file
+            FROM order_history oh
+            LEFT JOIN tables_sessions ts ON oh.table_session_id = ts.id
+            $where_clause_history
+            ORDER BY oh.closed_at DESC";
+
+    $stmt_history = $conn->prepare($sql_history);
+    if (!empty($params_history)) {
+        $stmt_history->bind_param($types_history, ...$params_history);
+    }
+    $stmt_history->execute();
+    $result_history = $stmt_history->get_result();
+
+    while ($row = $result_history->fetch_assoc()) {
+        $orders[] = $row;
+    }
+}
+
+// Ordenar todos os pedidos por data (mais recentes primeiro)
+usort($orders, function($a, $b) {
+    return strtotime($b['created_at']) - strtotime($a['created_at']);
+});
+
+// Calcular estatísticas
 $sql_stats = "SELECT 
-    COUNT(DISTINCT oi.table_session_id) as total_mesas,
-    COUNT(*) as total_pedidos,
-    SUM(oi.price * oi.quantity) as receita_total,
-    COUNT(DISTINCT ts.client_name) as total_clientes
-    FROM order_items oi 
-    LEFT JOIN tables_sessions ts ON oi.table_session_id = ts.id
-    $where_clause";
+    (SELECT COUNT(*) FROM order_items oi LEFT JOIN tables_sessions ts ON oi.table_session_id = ts.id WHERE ts.closed_at IS NULL) as pedidos_ativos,
+    (SELECT COUNT(*) FROM order_history) as pedidos_fechados,
+    (SELECT COUNT(DISTINCT table_session_id) FROM order_items oi LEFT JOIN tables_sessions ts ON oi.table_session_id = ts.id WHERE ts.closed_at IS NULL) as mesas_ativas,
+    (SELECT COUNT(*) FROM order_history) as mesas_fechadas,
+    (SELECT SUM(oi.price * oi.quantity) FROM order_items oi LEFT JOIN tables_sessions ts ON oi.table_session_id = ts.id WHERE ts.closed_at IS NULL) as receita_ativa,
+    (SELECT SUM(total_amount) FROM order_history) as receita_fechada,
+    (SELECT COUNT(DISTINCT client_name) FROM tables_sessions WHERE closed_at IS NULL) as clientes_ativos,
+    (SELECT COUNT(DISTINCT cliente_nome) FROM order_history) as clientes_fechados";
 
-$stmt_stats = $conn->prepare($sql_stats);
-if (!empty($params)) {
-    $stmt_stats->bind_param($types, ...$params);
-}
-$stmt_stats->execute();
-$stats = $stmt_stats->get_result()->fetch_assoc();
+$result_stats = $conn->query($sql_stats);
+$stats = $result_stats->fetch_assoc();
+
+$total_pedidos = ($stats['pedidos_ativos'] ?? 0) + ($stats['pedidos_fechados'] ?? 0);
+$total_mesas = ($stats['mesas_ativas'] ?? 0) + ($stats['mesas_fechadas'] ?? 0);
+$receita_total = ($stats['receita_ativa'] ?? 0) + ($stats['receita_fechada'] ?? 0);
+$total_clientes = ($stats['clientes_ativos'] ?? 0) + ($stats['clientes_fechados'] ?? 0);
 ?>
 
 <!DOCTYPE html>
@@ -137,11 +209,21 @@ $stats = $stmt_stats->get_result()->fetch_assoc();
             margin-bottom: 1rem;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             transition: transform 0.2s ease, box-shadow 0.2s ease;
+            cursor: pointer;
         }
 
         .order-card:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+
+        .order-card.fechado {
+            border-left: 4px solid #6c757d;
+            background: #f8f9fa;
+        }
+
+        .order-card.ativo {
+            border-left: 4px solid #28a745;
         }
 
         .mesa-badge {
@@ -160,8 +242,8 @@ $stats = $stmt_stats->get_result()->fetch_assoc();
             font-weight: 500;
         }
 
-        .status-open { background: #d4edda; color: #155724; }
-        .status-closed { background: #f8d7da; color: #721c24; }
+        .status-ativo { background: #d4edda; color: #155724; }
+        .status-fechado { background: #f8d7da; color: #721c24; }
 
         .product-type-badge {
             padding: 0.25rem 0.5rem;
@@ -174,11 +256,16 @@ $stats = $stmt_stats->get_result()->fetch_assoc();
         .type-acompanhamentos { background: #fff3cd; color: #856404; }
         .type-bebidas { background: #d4edda; color: #155724; }
         .type-doces { background: #f8d7da; color: #721c24; }
+        .type-fechado { background: #6c757d; color: white; }
 
         .price-highlight {
             font-size: 1.2rem;
             font-weight: bold;
             color: #28a745;
+        }
+
+        .price-highlight.fechado {
+            color: #6c757d;
         }
 
         .empty-state {
@@ -252,6 +339,25 @@ $stats = $stmt_stats->get_result()->fetch_assoc();
             align-items: end;
         }
 
+        .btn-download {
+            background: #17a2b8;
+            color: white;
+            border: none;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .btn-download:hover {
+            background: #138496;
+            color: white;
+            text-decoration: none;
+        }
+
         @media (max-width: 768px) {
             .order-header {
                 flex-direction: column;
@@ -323,11 +429,6 @@ $stats = $stmt_stats->get_result()->fetch_assoc();
                 <i class="ph ph-house-line"></i>
                 Pedidos
             </a>
-            <!-- <a href="#" class="menu-item">
-            <a href="viewMesa.php?session_id=1&count_people=0&created_at=2000-01-01+00%3A46%3A46&cliente_nome=none" class="menu-item">
-                <i class="ph ph-fork-knife"></i>
-                Mesas
-            </a> -->
             <a href="products.php" class="menu-item">
                 <i class="ph ph-cube"></i>
                 Produtos
@@ -364,19 +465,19 @@ $stats = $stmt_stats->get_result()->fetch_assoc();
                 <h3 class="mb-3"><i class="ph ph-chart-bar"></i> Estatísticas dos Pedidos</h3>
                 <div class="stats-grid">
                     <div class="stat-item">
-                        <span class="stat-number"><?= $stats['total_pedidos'] ?: 0 ?></span>
+                        <span class="stat-number"><?= $total_pedidos ?></span>
                         <span class="stat-label">Total de Pedidos</span>
                     </div>
                     <div class="stat-item">
-                        <span class="stat-number"><?= $stats['total_mesas'] ?: 0 ?></span>
+                        <span class="stat-number"><?= $total_mesas ?></span>
                         <span class="stat-label">Mesas Atendidas</span>
                     </div>
                     <div class="stat-item">
-                        <span class="stat-number"><?= $stats['total_clientes'] ?: 0 ?></span>
+                        <span class="stat-number"><?= $total_clientes ?></span>
                         <span class="stat-label">Clientes Únicos</span>
                     </div>
                     <div class="stat-item">
-                        <span class="stat-number">R$ <?= number_format($stats['receita_total'] ?: 0, 2, ',', '.') ?></span>
+                        <span class="stat-number">R$ <?= number_format($receita_total, 2, ',', '.') ?></span>
                         <span class="stat-label">Receita Total</span>
                     </div>
                 </div>
@@ -414,6 +515,15 @@ $stats = $stmt_stats->get_result()->fetch_assoc();
                     </div>
 
                     <div>
+                        <label class="form-label">Status</label>
+                        <select name="status" class="form-control">
+                            <option value="">Todos</option>
+                            <option value="ativo" <?= $filtro_status === 'ativo' ? 'selected' : '' ?>>Pedidos Ativos</option>
+                            <option value="fechado" <?= $filtro_status === 'fechado' ? 'selected' : '' ?>>Contas Fechadas</option>
+                        </select>
+                    </div>
+
+                    <div>
                         <button type="submit" class="button-primary w-100">
                             <i class="ph ph-magnifying-glass"></i> Filtrar
                         </button>
@@ -435,22 +545,31 @@ $stats = $stmt_stats->get_result()->fetch_assoc();
                     </h4>
 
                     <?php foreach ($orders as $order): ?>
-                        <div class="order-card">
+                        <div class="order-card <?= $order['status_pedido'] ?>" 
+                             onclick="window.location.href='viewMesa.php?id=<?= $order['session_id'] ?>&cliente_nome=<?= urlencode($order['client_name']) ?>&created_at=<?= urlencode($order['opened_at']) ?>&count_people=<?= $order['people_count'] ?>'">
                             <div class="order-header">
                                 <div class="d-flex align-items-center gap-3">
                                     <span class="mesa-badge">Mesa <?= $order['table_id'] ?></span>
                                     <h5 class="mb-0"><?= htmlspecialchars($order['client_name']) ?></h5>
                                     <?php if ($order['product_type']): ?>
                                         <span class="product-type-badge type-<?= strtolower($order['product_type']) ?>">
-                                            <?= ucfirst($order['product_type']) ?>
+                                            <?= $order['status_pedido'] === 'fechado' ? 'Conta Fechada' : ucfirst($order['product_type']) ?>
                                         </span>
                                     <?php endif; ?>
-                                    <span class="session-status <?= is_null($order['closed_at']) ? 'status-open' : 'status-closed' ?>">
-                                        <?= is_null($order['closed_at']) ? 'Sessão Aberta' : 'Sessão Fechada' ?>
+                                    <span class="session-status status-<?= $order['status_pedido'] ?>">
+                                        <?= $order['status_pedido'] === 'ativo' ? 'Sessão Aberta' : 'Sessão Fechada' ?>
                                     </span>
                                 </div>
-                                <div class="price-highlight">
-                                    R$ <?= number_format($order['price'] * $order['quantity'], 2, ',', '.') ?>
+                                <div class="d-flex flex-column align-items-end gap-2">
+                                    <div class="price-highlight <?= $order['status_pedido'] ?>">
+                                        R$ <?= number_format($order['price'] * $order['quantity'], 2, ',', '.') ?>
+                                    </div>
+                                    <?php if ($order['status_pedido'] === 'fechado' && isset($order['report_file'])): ?>
+                                        <a href="/burger-table/Functions/downloadReport.php?file=<?= urlencode($order['report_file']) ?>" 
+                                           class="btn-download" onclick="event.stopPropagation();">
+                                            <i class="ph ph-download"></i> Relatório
+                                        </a>
+                                    <?php endif; ?>
                                 </div>
                             </div>
 
@@ -467,20 +586,22 @@ $stats = $stmt_stats->get_result()->fetch_assoc();
                             </div>
 
                             <div class="order-details">
-                                <div class="detail-item">
-                                    <span class="detail-label">Quantidade</span>
-                                    <span class="detail-value">
-                                        <i class="ph ph-hash"></i> <?= $order['quantity'] ?>
-                                    </span>
-                                </div>
+                                <?php if ($order['status_pedido'] === 'ativo'): ?>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Quantidade</span>
+                                        <span class="detail-value">
+                                            <i class="ph ph-hash"></i> <?= $order['quantity'] ?>
+                                        </span>
+                                    </div>
 
-                                <div class="detail-item">
-                                    <span class="detail-label">Preço Unitário</span>
-                                    <span class="detail-value">
-                                        <i class="ph ph-currency-dollar"></i>
-                                        R$ <?= number_format($order['price'], 2, ',', '.') ?>
-                                    </span>
-                                </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Preço Unitário</span>
+                                        <span class="detail-value">
+                                            <i class="ph ph-currency-dollar"></i>
+                                            R$ <?= number_format($order['price'], 2, ',', '.') ?>
+                                        </span>
+                                    </div>
+                                <?php endif; ?>
 
                                 <div class="detail-item">
                                     <span class="detail-label">Pessoas na Mesa</span>
@@ -498,14 +619,14 @@ $stats = $stmt_stats->get_result()->fetch_assoc();
                                 </div>
 
                                 <div class="detail-item">
-                                    <span class="detail-label">Pedido Feito</span>
+                                    <span class="detail-label"><?= $order['status_pedido'] === 'ativo' ? 'Pedido Feito' : 'Conta Fechada' ?></span>
                                     <span class="detail-value">
                                         <i class="ph ph-clock"></i>
                                         <?= date('d/m/Y H:i', strtotime($order['created_at'])) ?>
                                     </span>
                                 </div>
 
-                                <?php if (!is_null($order['closed_at'])): ?>
+                                <?php if ($order['status_pedido'] === 'ativo' && !is_null($order['closed_at'])): ?>
                                 <div class="detail-item">
                                     <span class="detail-label">Sessão Fechada</span>
                                     <span class="detail-value">
@@ -516,7 +637,7 @@ $stats = $stmt_stats->get_result()->fetch_assoc();
                                 <?php endif; ?>
 
                                 <div class="detail-item">
-                                    <span class="detail-label">ID do Item</span>
+                                    <span class="detail-label">ID do <?= $order['status_pedido'] === 'ativo' ? 'Item' : 'Histórico' ?></span>
                                     <span class="detail-value">
                                         <i class="ph ph-identifier"></i> #<?= $order['id'] ?>
                                     </span>
@@ -529,7 +650,7 @@ $stats = $stmt_stats->get_result()->fetch_assoc();
                     <div class="empty-state">
                         <i class="ph ph-receipt"></i>
                         <h4>Nenhum pedido encontrado</h4>
-                        <p>Não há pedidos que correspondam aos  filtros aplicados.</p>
+                        <p>Não há pedidos que correspondam aos filtros aplicados.</p>
                     </div>
                 <?php endif; ?>
             </div>

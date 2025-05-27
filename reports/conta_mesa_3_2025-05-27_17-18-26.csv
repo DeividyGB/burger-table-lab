@@ -1,0 +1,7 @@
+Mesa,Produto,Quantidade,Preco_Unitario,Data_Adicao,Subtotal
+3,Hamburger,1,20.00,"2025-05-27 12:18:22",20.00
+
+TOTAL,,,,,20.00
+CLIENTE,Lenyn,,,,
+PESSOAS,3,,,,
+VALOR_POR_PESSOA,,,,,6.67
