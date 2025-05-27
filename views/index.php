@@ -100,32 +100,32 @@ $stats = $stmt_stats->get_result()->fetch_assoc();
             margin-bottom: 1rem;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
-        
+
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 1rem;
             margin-bottom: 2rem;
         }
-        
+
         .stat-item {
             background: rgba(255,255,255,0.1);
             padding: 1rem;
             border-radius: 8px;
             text-align: center;
         }
-        
+
         .stat-number {
             font-size: 2rem;
             font-weight: bold;
             display: block;
         }
-        
+
         .stat-label {
             font-size: 0.9rem;
             opacity: 0.8;
         }
-        
+
         .filters-card {
             background: white;
             border-radius: 12px;
@@ -133,7 +133,7 @@ $stats = $stmt_stats->get_result()->fetch_assoc();
             margin-bottom: 2rem;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-        
+
         .order-card {
             background: white;
             border-radius: 12px;
@@ -142,12 +142,12 @@ $stats = $stmt_stats->get_result()->fetch_assoc();
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
-        
+
         .order-card:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 20px rgba(0,0,0,0.15);
         }
-        
+
         .mesa-badge {
             background: #007bff;
             color: white;
@@ -156,35 +156,35 @@ $stats = $stmt_stats->get_result()->fetch_assoc();
             font-size: 0.85rem;
             font-weight: 600;
         }
-        
+
         .session-status {
             padding: 0.25rem 0.75rem;
             border-radius: 15px;
             font-size: 0.75rem;
             font-weight: 500;
         }
-        
+
         .status-open { background: #d4edda; color: #155724; }
         .status-closed { background: #f8d7da; color: #721c24; }
-        
+
         .product-type-badge {
             padding: 0.25rem 0.5rem;
             border-radius: 15px;
             font-size: 0.75rem;
             font-weight: 500;
         }
-        
+
         .type-hamburguer { background: #ffe6e6; color: #cc0000; }
         .type-acompanhamentos { background: #fff3cd; color: #856404; }
         .type-bebidas { background: #d4edda; color: #155724; }
         .type-doces { background: #f8d7da; color: #721c24; }
-        
+
         .price-highlight {
             font-size: 1.2rem;
             font-weight: bold;
             color: #28a745;
         }
-        
+
         .empty-state {
             text-align: center;
             padding: 3rem;
@@ -195,20 +195,20 @@ $stats = $stmt_stats->get_result()->fetch_assoc();
             border: solid 2px #cbcbcb;
             border-radius: 5px;
         }
-        
+
         .empty-state i {
             font-size: 4rem;
             margin-bottom: 1rem;
             opacity: 0.3;
         }
-        
+
         .order-header {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
             margin-bottom: 1rem;
         }
-        
+
         .order-details {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -217,23 +217,23 @@ $stats = $stmt_stats->get_result()->fetch_assoc();
             padding-top: 1rem;
             border-top: 1px solid #e9ecef;
         }
-        
+
         .detail-item {
             display: flex;
             flex-direction: column;
         }
-        
+
         .detail-label {
             font-size: 0.8rem;
             color: #6c757d;
             margin-bottom: 0.25rem;
         }
-        
+
         .detail-value {
             font-weight: 600;
             color: #212529;
         }
-        
+
         .btn-export {
             background: linear-gradient(45deg, #28a745, #20c997);
             border: none;
@@ -242,26 +242,26 @@ $stats = $stmt_stats->get_result()->fetch_assoc();
             border-radius: 8px;
             transition: all 0.3s ease;
         }
-        
+
         .btn-export:hover {
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
             color: white;
         }
-        
+
         .filter-form {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 1rem;
             align-items: end;
         }
-        
+
         @media (max-width: 768px) {
             .order-header {
                 flex-direction: column;
                 gap: 1rem;
             }
-            
+
             .filter-form {
                 grid-template-columns: 1fr;
             }
@@ -328,6 +328,7 @@ $stats = $stmt_stats->get_result()->fetch_assoc();
                 Pedidos
             </a>
             <!-- <a href="#" class="menu-item">
+            <a href="viewMesa.php?session_id=1&count_people=0&created_at=2000-01-01+00%3A46%3A46&cliente_nome=none" class="menu-item">
                 <i class="ph ph-fork-knife"></i>
                 Mesas
             </a> -->
@@ -361,7 +362,7 @@ $stats = $stmt_stats->get_result()->fetch_assoc();
                 <div class="avatar cs">DPM</div>
             </div>
         </div>
-        
+
         <div class="main-content">
             <div class="stats-card">
                 <h3 class="mb-3"><i class="ph ph-chart-bar"></i> Estatísticas dos Pedidos</h3>
@@ -394,34 +395,34 @@ $stats = $stmt_stats->get_result()->fetch_assoc();
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h4><i class="ph ph-funnel"></i> Filtros</h4>
                 </div>
-                
+
                 <form method="GET" class="filter-form">
                     <div>
                         <label class="form-label">Mesa</label>
-                        <input type="number" name="mesa" class="form-control" 
-                               value="<?= htmlspecialchars($filtro_mesa) ?>" 
+                        <input type="number" name="mesa" class="form-control"
+                               value="<?= htmlspecialchars($filtro_mesa) ?>"
                                placeholder="Número da mesa">
                     </div>
-                    
+
                     <div>
                         <label class="form-label">Cliente</label>
-                        <input type="text" name="cliente" class="form-control" 
-                               value="<?= htmlspecialchars($filtro_cliente) ?>" 
+                        <input type="text" name="cliente" class="form-control"
+                               value="<?= htmlspecialchars($filtro_cliente) ?>"
                                placeholder="Nome do cliente">
                     </div>
                     
                     <div>
                         <label class="form-label">Data</label>
-                        <input type="date" name="data" class="form-control" 
+                        <input type="date" name="data" class="form-control"
                                value="<?= htmlspecialchars($filtro_data) ?>">
                     </div>
-                    
+
                     <div>
                         <button type="submit" class="button-primary w-100">
                             <i class="ph ph-magnifying-glass"></i> Filtrar
                         </button>
                     </div>
-                    
+
                     <div>
                         <a href="?" class="btn btn-outline-secondary w-100">
                             <i class="ph ph-x"></i> Limpar Filtros
@@ -434,10 +435,10 @@ $stats = $stmt_stats->get_result()->fetch_assoc();
             <div class="orders-container">
                 <?php if (count($orders) > 0): ?>
                     <h4 class="mb-3">
-                        <i class="ph ph-list-checks"></i> 
+                        <i class="ph ph-list-checks"></i>
                         Pedidos Encontrados (<?= count($orders) ?>)
                     </h4>
-                    
+
                     <?php foreach ($orders as $order): ?>
                         <div class="order-card">
                             <div class="order-header">
@@ -457,10 +458,10 @@ $stats = $stmt_stats->get_result()->fetch_assoc();
                                     R$ <?= number_format($order['price'] * $order['quantity'], 2, ',', '.') ?>
                                 </div>
                             </div>
-                            
+
                             <div class="product-info">
                                 <h6 class="mb-1">
-                                    <i class="ph ph-package"></i> 
+                                    <i class="ph ph-package"></i>
                                     <?= htmlspecialchars($order['product_name'] ?: 'Produto não encontrado') ?>
                                 </h6>
                                 <?php if ($order['product_description']): ?>
@@ -469,7 +470,7 @@ $stats = $stmt_stats->get_result()->fetch_assoc();
                                     </p>
                                 <?php endif; ?>
                             </div>
-                            
+
                             <div class="order-details">
                                 <div class="detail-item">
                                     <span class="detail-label">Quantidade</span>
@@ -477,48 +478,48 @@ $stats = $stmt_stats->get_result()->fetch_assoc();
                                         <i class="ph ph-hash"></i> <?= $order['quantity'] ?>
                                     </span>
                                 </div>
-                                
+
                                 <div class="detail-item">
                                     <span class="detail-label">Preço Unitário</span>
                                     <span class="detail-value">
-                                        <i class="ph ph-currency-dollar"></i> 
+                                        <i class="ph ph-currency-dollar"></i>
                                         R$ <?= number_format($order['price'], 2, ',', '.') ?>
                                     </span>
                                 </div>
-                                
+
                                 <div class="detail-item">
                                     <span class="detail-label">Pessoas na Mesa</span>
                                     <span class="detail-value">
                                         <i class="ph ph-users"></i> <?= $order['people_count'] ?>
                                     </span>
                                 </div>
-                                
+
                                 <div class="detail-item">
                                     <span class="detail-label">Sessão Iniciada</span>
                                     <span class="detail-value">
-                                        <i class="ph ph-calendar"></i> 
+                                        <i class="ph ph-calendar"></i>
                                         <?= date('d/m/Y H:i', strtotime($order['opened_at'])) ?>
                                     </span>
                                 </div>
-                                
+
                                 <div class="detail-item">
                                     <span class="detail-label">Pedido Feito</span>
                                     <span class="detail-value">
-                                        <i class="ph ph-clock"></i> 
+                                        <i class="ph ph-clock"></i>
                                         <?= date('d/m/Y H:i', strtotime($order['created_at'])) ?>
                                     </span>
                                 </div>
-                                
+
                                 <?php if (!is_null($order['closed_at'])): ?>
                                 <div class="detail-item">
                                     <span class="detail-label">Sessão Fechada</span>
                                     <span class="detail-value">
-                                        <i class="ph ph-x-circle"></i> 
+                                        <i class="ph ph-x-circle"></i>
                                         <?= date('d/m/Y H:i', strtotime($order['closed_at'])) ?>
                                     </span>
                                 </div>
                                 <?php endif; ?>
-                                
+
                                 <div class="detail-item">
                                     <span class="detail-label">ID do Item</span>
                                     <span class="detail-value">
@@ -528,7 +529,7 @@ $stats = $stmt_stats->get_result()->fetch_assoc();
                             </div>
                         </div>
                     <?php endforeach; ?>
-                    
+
                 <?php else: ?>
                     <div class="empty-state">
                         <i class="ph ph-receipt"></i>
