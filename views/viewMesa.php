@@ -286,7 +286,7 @@
             <div class="user-info">
                 <div class="user-name">
                     <h4>Diogo da Silva</h4>
-                    <p>Gerente do pal mole</p>
+                    <p>Garçom</p>
                 </div>
                 <div class="avatar cs">DPM</div>
             </div>
@@ -704,11 +704,6 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
                     </div>
                     <div class="modal-body">
-                        <div class="alert alert-warning">
-                            <i class="ph ph-warning-circle"></i>
-                            <strong>Atenção!</strong> Ao fechar a conta, será gerado um relatório em CSV e todos os itens do pedido serão removidos.
-                        </div>
-                        
                         <div class="resumo-fechamento">
                             <h6>Resumo do Pedido:</h6>
                             <div class="d-flex justify-content-between">

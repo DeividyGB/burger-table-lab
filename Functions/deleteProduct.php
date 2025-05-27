@@ -8,7 +8,7 @@
     $stmt->bind_param("i", $id);
 
     if ($stmt->execute()) {
-        header("Location: /burger-table-lab/views/products.php");
+        header("Location: /burger-table/views/products.php");
     } else {
         echo "Erro ao deletar: " . $conn->error;
     }

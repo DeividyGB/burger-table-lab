@@ -153,7 +153,7 @@
             <div class="user-info">
                 <div class="user-name">
                     <h4>Diogo da Silva</h4>
-                    <p>Gerente do pal mole</p>
+                    <p>Garçom</p>
                 </div>
                 <div class="avatar cs">DPM</div>
             </div>

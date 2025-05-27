@@ -14,7 +14,6 @@ $params_history = [];
 $types_active = '';
 $types_history = '';
 
-// Filtros para pedidos ativos
 if (!empty($filtro_mesa)) {
     $where_conditions_active[] = "ts.table_id = ?";
     $params_active[] = $filtro_mesa;
@@ -57,7 +56,6 @@ if (!empty($where_conditions_history)) {
 
 $orders = [];
 
-// Buscar pedidos ativos (não fechados) apenas se não estiver filtrando por "fechado"
 if ($filtro_status !== 'fechado') {
     $sql_active = "SELECT oi.id, oi.quantity, oi.price, oi.created_at,
                    p.name as product_name, 
@@ -89,7 +87,6 @@ if ($filtro_status !== 'fechado') {
     }
 }
 
-// Buscar pedidos do histórico (fechados) apenas se não estiver filtrando por "ativo"
 if ($filtro_status !== 'ativo') {
     $sql_history = "SELECT 
                     oh.id,
@@ -124,12 +121,10 @@ if ($filtro_status !== 'ativo') {
     }
 }
 
-// Ordenar todos os pedidos por data (mais recentes primeiro)
 usort($orders, function($a, $b) {
     return strtotime($b['created_at']) - strtotime($a['created_at']);
 });
 
-// Calcular estatísticas
 $sql_stats = "SELECT 
     (SELECT COUNT(*) FROM order_items oi LEFT JOIN tables_sessions ts ON oi.table_session_id = ts.id WHERE ts.closed_at IS NULL) as pedidos_ativos,
     (SELECT COUNT(*) FROM order_history) as pedidos_fechados,
@@ -454,7 +449,7 @@ $total_clientes = ($stats['clientes_ativos'] ?? 0) + ($stats['clientes_fechados'
             <div class="user-info">
                 <div class="user-name">
                     <h4>Diogo da Silva</h4>
-                    <p>Gerente do pal mole</p>
+                    <p>Garçom</p>
                 </div>
                 <div class="avatar cs">DPM</div>
             </div>
@@ -474,7 +469,7 @@ $total_clientes = ($stats['clientes_ativos'] ?? 0) + ($stats['clientes_fechados'
                     </div>
                     <div class="stat-item">
                         <span class="stat-number"><?= $total_clientes ?></span>
-                        <span class="stat-label">Clientes Únicos</span>
+                        <span class="stat-label">Total de clientes</span>
                     </div>
                     <div class="stat-item">
                         <span class="stat-number">R$ <?= number_format($receita_total, 2, ',', '.') ?></span>

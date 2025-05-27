@@ -477,7 +477,7 @@ input::placeholder {
 .tab-section {
     display: none;
     flex-wrap: wrap;
-    gap: 20px;
+    gap: 10px;
     width: 100%;
 }
 
