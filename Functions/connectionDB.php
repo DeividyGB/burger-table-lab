@@ -2,7 +2,7 @@
     $host = 'localhost';
     $usuario = 'root';
     $senha = '';
-    $banco = 'burger-table';
+    $banco = 'burger-table2';
 
     $conn = new mysqli($host, $usuario, $senha, $banco);
 

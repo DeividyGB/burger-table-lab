@@ -545,7 +545,7 @@ input::placeholder {
 }
 
 .btn-adicionar {
-    background-color: #ff7a45;
+    background-color: var(--primary);
     color: #fff;
     border: none;
     border-radius: 20px;
@@ -556,7 +556,7 @@ input::placeholder {
 }
 
 .btn-adicionar:hover {
-    background-color: #e66634;
+    background-color: var(--primary-light);
 }
 
 .tabs-container {
@@ -631,3 +631,72 @@ input::placeholder {
     border: solid 1px #cbcbcb;
 }
 
+.alert {
+    margin-bottom: 1rem;
+}
+
+.alert .ph {
+    margin-right: 0.5rem;
+}
+
+.resumo-fechamento {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 8px;
+    margin: 1rem 0;
+}
+
+.resumo-fechamento .d-flex {
+    margin-bottom: 0.5rem;
+}
+
+.conta-detalhes .info-item {
+    margin-bottom: 1rem;
+}
+
+.conta-detalhes .info-item small {
+    display: block;
+    font-size: 0.8rem;
+}
+
+.conta-item {
+    border-bottom: 1px solid #eee;
+}
+
+.conta-item:last-child {
+    border-bottom: none;
+}
+
+.conta-total {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-top: 1rem;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+    border-color: #bd2130;
+    transform: translateY(-1px);
+}
+
+.custom-modal .modal-body .alert {
+    margin-bottom: 1rem;
+}
+
+.empty-pedido i {
+    font-size: 3rem;
+    color: #ccc;
+    margin-bottom: 1rem;
+}

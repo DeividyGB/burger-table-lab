@@ -1,15 +1,3 @@
-CREATE TABLE IF NOT EXISTS orders(
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    table_session_id INT,
-    client_name VARCHAR(50),
-    people_count INT,
-    product_id VARCHAR(100),
-    quantity INT,
-    price FLOAT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
-
 CREATE TABLE IF NOT EXISTS products(
     id INT PRIMARY KEY AUTO_INCREMENT,
     name INT,
@@ -49,3 +37,60 @@ INSERT INTO tables(table_number) VALUES (9);
 INSERT INTO tables(table_number) VALUES (10);
 
 ALTER TABLE products MODIFY COLUMN name VARCHAR(50);
+
+DROP TABLE IF EXISTS order_items;
+DROP TABLE IF EXISTS orders; -- Antiga (não usaremos mais)
+DROP TABLE IF EXISTS tables_sessions;
+DROP TABLE IF EXISTS products;
+DROP TABLE IF EXISTS tables;
+
+CREATE TABLE tables (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    table_number INT NOT NULL UNIQUE
+);
+
+CREATE TABLE products (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,
+    price FLOAT NOT NULL,
+    description VARCHAR(100),
+    type VARCHAR(20) -- hamburgueres, acompanhamentos, bebidas, sobremesas
+);
+
+CREATE TABLE tables_sessions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    table_id INT NOT NULL,
+    client_name VARCHAR(50),
+    people_count INT,
+    opened_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    closed_at TIMESTAMP NULL DEFAULT NULL,
+    FOREIGN KEY (table_id) REFERENCES tables(id)
+);
+
+CREATE TABLE order_items (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    table_session_id INT NOT NULL,
+    product_id INT NOT NULL,
+    quantity INT DEFAULT 1,
+    price FLOAT NOT NULL, -- valor do produto no momento da venda
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (table_session_id) REFERENCES tables_sessions(id),
+    FOREIGN KEY (product_id) REFERENCES products(id)
+);
+
+CREATE TABLE IF NOT EXISTS order_history (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    table_session_id INT NOT NULL,
+    cliente_nome VARCHAR(255) NOT NULL,
+    people_count INT NOT NULL DEFAULT 1,
+    total_amount DECIMAL(10,2) NOT NULL,
+    items_count INT NOT NULL,
+    opened_at DATETIME NOT NULL,
+    closed_at DATETIME NOT NULL,
+    report_file VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_order_history_table_session ON order_history(table_session_id);
+CREATE INDEX idx_order_history_closed_at ON order_history(closed_at);
+CREATE INDEX idx_order_history_cliente ON order_history(cliente_nome);

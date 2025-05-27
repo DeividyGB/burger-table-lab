@@ -24,10 +24,10 @@
                 <i class="ph ph-house-line"></i>
                 Pedidos
             </a>
-            <a href="#" class="menu-item">
+            <!-- <a href="#" class="menu-item">
                 <i class="ph ph-fork-knife"></i>
                 Mesas
-            </a>
+            </a> -->
             <a href="products.php" class="menu-item active">
                 <i class="ph ph-cube"></i>
                 Produtos
@@ -175,7 +175,7 @@
                 </div>
             </div>
 
-            <section class="card-section flex-column">
+            <section class="card-section flex-column flex-nowrap">
 
                 <?php
                 include('../Functions/connectionDB.php');
