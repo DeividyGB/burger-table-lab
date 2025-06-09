@@ -15,7 +15,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $stmt->bind_param("sdss", $product_name, $product_price, $product_description, $category);
 
     if ($stmt->execute()) {
-        header("Location: /burger-table-lab/views/products.php");
+        header("Location: /burger-table/views/products.php");
     } else {
         echo "Erro ao inserir o produto: " . $stmt->error;
     }

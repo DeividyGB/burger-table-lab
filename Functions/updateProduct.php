@@ -12,7 +12,7 @@
     $stmt->bind_param("sdssi", $name, $price, $description, $type, $id);
 
     if ($stmt->execute()) {
-        header("Location: /burger-table-lab/views/products.php");
+        header("Location: /burger-table/views/products.php");
     } else {
         echo "Erro ao atualizar: " . $conn->error;
     }
