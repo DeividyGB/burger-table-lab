@@ -8,7 +8,7 @@
         $people_count = $_GET['count_people'];
 
     } else {
-        echo "Dados do pedido não encontrados.";
+        echo "Dadosnão encontrados.";
     }
 ?>
 
@@ -36,6 +36,11 @@
     .pedido-item:hover {
         box-shadow: 0 4px 8px rgba(0,0,0,0.15);
         transform: translateY(-2px);
+    }
+    .pedido-item.closed {
+        background: #f8f9fa;
+        border-color: #6c757d;
+        opacity: 0.8;
     }
     .pedido-header {
         display: flex;
@@ -80,6 +85,9 @@
         border-radius: 8px;
         margin-top: 1rem;
         text-align: center;
+    }
+    .total-pedido.closed {
+        background: linear-gradient(322deg, #6c757d, #495057);
     }
     .total-valor {
         font-size: 1.5rem;
@@ -170,6 +178,32 @@
     margin-bottom: 1rem;
 }
 
+.status-badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.status-badge.ativo {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-badge.fechado {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.conta-fechada-info {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
     </style>
 </head>
 <body>
@@ -205,9 +239,6 @@
             </div>
         </div>
     </div>
-
-
-    
 
     <div class="sidebar">
         <div class="logo-container">
@@ -252,17 +283,36 @@
             <div class="user-info">
                 <div class="user-name">
                     <h4>Diogo da Silva</h4>
-                    <p>Gerente do pal mole</p>
+                    <p>Garçom</p>
                 </div>
                 <div class="avatar cs">DPM</div>
             </div>
         </div>
         
         <div class="main-content">
+            <?php
+            include('../Functions/connectionDB.php');
+            
+                $sql_session_status = "SELECT closed_at FROM tables_sessions WHERE id = ?";
+                $stmt_session_status = $conn->prepare($sql_session_status);
+                $stmt_session_status->bind_param("i", $mesa_id);
+                $stmt_session_status->execute();
+                $result_session_status = $stmt_session_status->get_result();
+                $session_status = $result_session_status->fetch_assoc();
+                
+                $is_closed = !empty($session_status['closed_at']);
+                $closed_at = $session_status['closed_at'];
+            ?>
+            
             <div class="info-mesa-card">
                 <div class="info-header">
                     <h2>Mesa IDº <?= htmlspecialchars($mesa_id) ?></h2>
-                    <span class="data-criacao"><i>Criado às: </i> <?= date('d/m/Y H:i', strtotime($created_at)) ?></span>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="status-badge <?= $is_closed ? 'fechado' : 'ativo' ?>">
+                            <?= $is_closed ? 'Fechada' : 'Ativa' ?>
+                        </span>
+                        <span class="data-criacao"><i>Criado às: </i> <?= date('d/m/Y H:i', strtotime($created_at)) ?></span>
+                    </div>
                 </div>
                 <div class="info-body">
                     <div class="info-item">
@@ -271,8 +321,23 @@
                     <div class="info-item">
                         <strong><i class="ph ph-users"></i> Pessoas:</strong> <?= (int)$people_count ?>
                     </div>
+                    <?php if ($is_closed): ?>
+                        <div class="info-item">
+                            <strong><i class="ph ph-clock"></i> Fechada em:</strong> <?= date('d/m/Y H:i', strtotime($closed_at)) ?>
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
+
+            <?php if ($is_closed): ?>
+                <div class="conta-fechada-info">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <i class="ph ph-info text-info"></i>
+                        <strong>Conta Encerrada</strong>
+                    </div>
+                    <p class="mb-0">Esta conta já foi encerrada. Os itens abaixo são apenas para consulta.</p>
+                </div>
+            <?php endif; ?>
 
             <?php if (isset($_GET['closed']) && $_GET['closed'] == 1): ?>
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -298,54 +363,101 @@
             <div class="d-flex gap-3 flex-column h-100">
                 <div class="tabs-container p-2">
                     <div class="tab-button active" data-tab="pedido">Pedido</div>
-                    <div class="tab-button" data-tab="cardapio">Cardápio</div>
+                    <?php if (!$is_closed): ?>
+                        <div class="tab-button" data-tab="cardapio">Cardápio</div>
+                    <?php endif; ?>
                     <div class="tab-button" data-tab="conta">Conta</div>
                 </div>
 
                 <div class="tab-content" id="pedido">
                     <?php
-                    include('../Functions/connectionDB.php');
-                    
-                    $sql_pedido = "SELECT oi.*, p.name as product_name, p.description 
-                                  FROM order_items oi 
-                                  JOIN products p ON oi.product_id = p.id 
-                                  WHERE oi.table_session_id = ? 
-                                  ORDER BY oi.created_at DESC";
-                    
-                    $stmt_pedido = $conn->prepare($sql_pedido);
-                    $stmt_pedido->bind_param("i", $mesa_id);
-                    $stmt_pedido->execute();
-                    $result_pedido = $stmt_pedido->get_result();
-                    
-                    $total_pedido = 0;
-                    $itens_pedido = [];
-                    
-                    while ($item = $result_pedido->fetch_assoc()) {
-                        $itens_pedido[] = $item;
-                        $total_pedido += ($item['price'] * $item['quantity']);
+                    if ($is_closed) {
+                        $sql_history = "SELECT * FROM order_history WHERE table_session_id = ?";
+                        $stmt_history = $conn->prepare($sql_history);
+                        $stmt_history->bind_param("i", $mesa_id);
+                        $stmt_history->execute();
+                        $result_history = $stmt_history->get_result();
+                        
+                        if ($result_history->num_rows > 0) {
+                            $history_data = $result_history->fetch_assoc();
+                            $total_pedido = floatval($history_data['total_amount']);
+                            $items_count = intval($history_data['items_count']);
+                            
+                            $csv_file = '../reports/' . $history_data['report_file'];
+                            $itens_pedido = [];
+                            
+                            if (file_exists($csv_file)) {
+                                $file_handle = fopen($csv_file, 'r');
+                                $header = fgetcsv($file_handle, 1000, ",");
+                                
+                                while (($data = fgetcsv($file_handle, 1000, ",")) !== FALSE) {
+                                    if (empty($data[1]) || $data[0] === 'TOTAL' || $data[0] === 'CLIENTE' || $data[0] === 'PESSOAS' || $data[0] === 'VALOR_POR_PESSOA') {
+                                        continue;
+                                    }
+                                    
+                                    $itens_pedido[] = [
+                                        'product_name' => $data[1] ?? 'Produto',
+                                        'quantity' => intval($data[2] ?? 1),
+                                        'price' => floatval($data[3] ?? 0),
+                                        'created_at' => $data[4] ?? $history_data['closed_at'],
+                                        'description' => ''
+                                    ];
+                                }
+                                fclose($file_handle);
+                            }
+                        } else {
+                            $total_pedido = 0;
+                            $itens_pedido = [];
+                        }
+                    } else {
+                        // Buscar pedidos ativos
+                        $sql_pedido = "SELECT oi.*, p.name as product_name, p.description 
+                                      FROM order_items oi 
+                                      JOIN products p ON oi.product_id = p.id 
+                                      WHERE oi.table_session_id = ? 
+                                      ORDER BY oi.created_at DESC";
+                        
+                        $stmt_pedido = $conn->prepare($sql_pedido);
+                        $stmt_pedido->bind_param("i", $mesa_id);
+                        $stmt_pedido->execute();
+                        $result_pedido = $stmt_pedido->get_result();
+                        
+                        $total_pedido = 0;
+                        $itens_pedido = [];
+                        
+                        while ($item = $result_pedido->fetch_assoc()) {
+                            $itens_pedido[] = $item;
+                            $total_pedido += (floatval($item['price']) * intval($item['quantity']));
+                        }
                     }
                     
                     if (count($itens_pedido) > 0): ?>
                         <div class="pedidos-lista">
-                            <?php foreach ($itens_pedido as $item): ?>
-                                <div class="pedido-item">
+                            <?php foreach ($itens_pedido as $item): 
+                                $item_price = floatval($item['price']);
+                                $item_quantity = intval($item['quantity']);
+                                $item_total = $item_price * $item_quantity;
+                            ?>
+                                <div class="pedido-item <?= $is_closed ? 'closed' : '' ?>">
                                     <div class="pedido-header">
                                         <div class="d-flex align-items-center gap-2">
                                             <span class="produto-nome"><?= htmlspecialchars($item['product_name']) ?></span>
-                                            <span class="produto-quantidade">x<?= $item['quantity'] ?></span>
+                                            <span class="produto-quantidade">x<?= $item_quantity ?></span>
                                         </div>
                                         <div class="d-flex align-items-center gap-2">
-                                            <span class="produto-preco">R$ <?= number_format($item['price'] * $item['quantity'], 2, ',', '.') ?></span>
-                                            <form method="POST" action="/burger-table/Functions/removeOrderItem.php" style="display: inline;">
-                                                <input type="hidden" name="item_id" value="<?= $item['id'] ?>">
-                                                <input type="hidden" name="table_session_id" value="<?= $mesa_id ?>">
-                                                <input type="hidden" name="cliente_nome" value="<?= urlencode($cliente_nome) ?>">
-                                                <input type="hidden" name="created_at" value="<?= urlencode($created_at) ?>">
-                                                <input type="hidden" name="count_people" value="<?= $people_count ?>">
-                                                <button type="submit" class="btn-remover" onclick="return confirm('Tem certeza que deseja remover este item?')">
-                                                    <i class="ph ph-trash"></i>
-                                                </button>
-                                            </form>
+                                            <span class="produto-preco">R$ <?= number_format($item_total, 2, ',', '.') ?></span>
+                                            <?php if (!$is_closed && isset($item['id'])): ?>
+                                                <form method="POST" action="/burger-table/Functions/removeOrderItem.php" style="display: inline;">
+                                                    <input type="hidden" name="item_id" value="<?= $item['id'] ?>">
+                                                    <input type="hidden" name="table_session_id" value="<?= $mesa_id ?>">
+                                                    <input type="hidden" name="cliente_nome" value="<?= urlencode($cliente_nome) ?>">
+                                                    <input type="hidden" name="created_at" value="<?= urlencode($created_at) ?>">
+                                                    <input type="hidden" name="count_people" value="<?= $people_count ?>">
+                                                    <button type="submit" class="btn-remover" onclick="return confirm('Tem certeza que deseja remover este item?')">
+                                                        <i class="ph ph-trash"></i>
+                                                    </button>
+                                                </form>
+                                            <?php endif; ?>
                                         </div>
                                     </div>
                                     <?php if (!empty($item['description'])): ?>
@@ -355,8 +467,8 @@
                                 </div>
                             <?php endforeach; ?>
                             
-                            <div class="total-pedido">
-                                <div>Total do Pedido</div>
+                            <div class="total-pedido <?= $is_closed ? 'closed' : '' ?>">
+                                <div><?= $is_closed ? 'Total da Conta Encerrada' : 'Total do Pedido' ?></div>
                                 <div class="total-valor">R$ <?= number_format($total_pedido, 2, ',', '.') ?></div>
                             </div>
                         </div>
@@ -364,11 +476,16 @@
                         <div class="empty-pedido">
                             <i class="ph ph-shopping-cart"></i>
                             <h4>Nenhum item no pedido</h4>
-                            <p>Adicione itens do cardápio para começar o pedido.</p>
+                            <?php if (!$is_closed): ?>
+                                <p>Adicione itens do cardápio para começar o pedido.</p>
+                            <?php else: ?>
+                                <p>Esta conta foi encerrada sem itens.</p>
+                            <?php endif; ?>
                         </div>
                     <?php endif; ?>
                 </div>
 
+                <?php if (!$is_closed): ?>
                 <div class="tab-content" id="cardapio" style="display: none;">
                     <?php
                     $sql = "SELECT * FROM products";
@@ -463,12 +580,13 @@
                         </section>
                     </section>
                 </div>
+                <?php endif; ?>
 
                 <div class="tab-content" id="conta" style="display: none;">
                     <div class="conta-resumo">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h3>Resumo da Conta</h3>
-                            <?php if (count($itens_pedido) > 0): ?>
+                            <?php if (count($itens_pedido) > 0 && !$is_closed): ?>
                                 <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#closeOrderModal">
                                     <i class="ph ph-receipt"></i> Fechar Conta
                                 </button>
@@ -503,6 +621,14 @@
                                                 <div class="fw-bold"><?= date('d/m/Y H:i', strtotime($created_at)) ?></div>
                                             </div>
                                         </div>
+                                        <?php if ($is_closed): ?>
+                                            <div class="col-md-6">
+                                                <div class="info-item">
+                                                    <small class="text-muted">Fechada em</small>
+                                                    <div class="fw-bold"><?= date('d/m/Y H:i', strtotime($closed_at)) ?></div>
+                                                </div>
+                                            </div>
+                                        <?php endif; ?>
                                     </div>
                                 </div>
                                 
@@ -511,18 +637,22 @@
                                     <?php 
                                     $stats_categoria = [];
                                     foreach ($itens_pedido as $item): 
+                                        $item_price = floatval($item['price']);
+                                        $item_quantity = intval($item['quantity']);
+                                        $item_total = $item_price * $item_quantity;
+                                        
                                         $categoria = ucfirst($item['product_name'][0] ?? 'Outros');
                                         if (!isset($stats_categoria[$categoria])) {
                                             $stats_categoria[$categoria] = 0;
                                         }
-                                        $stats_categoria[$categoria] += ($item['price'] * $item['quantity']);
+                                        $stats_categoria[$categoria] += $item_total;
                                     ?>
                                         <div class="conta-item d-flex justify-content-between align-items-center py-2">
                                             <div>
                                                 <span class="fw-medium"><?= htmlspecialchars($item['product_name']) ?></span>
-                                                <small class="text-muted d-block">Qtd: <?= $item['quantity'] ?> × R$ <?= number_format($item['price'], 2, ',', '.') ?></small>
+                                                <small class="text-muted d-block">Qtd: <?= $item_quantity ?> × R$ <?= number_format($item_price, 2, ',', '.') ?></small>
                                             </div>
-                                            <span class="fw-bold">R$ <?= number_format($item['price'] * $item['quantity'], 2, ',', '.') ?></span>
+                                            <span class="fw-bold">R$ <?= number_format($item_total, 2, ',', '.') ?></span>
                                         </div>
                                     <?php endforeach; ?>
                                     
@@ -549,7 +679,11 @@
                             <div class="empty-pedido">
                                 <i class="ph ph-receipt"></i>
                                 <h4>Nenhum item no pedido</h4>
-                                <p>Adicione itens do cardápio para gerar uma conta.</p>
+                                <?php if (!$is_closed): ?>
+                                    <p>Adicione itens do cardápio para gerar uma conta.</p>
+                                <?php else: ?>
+                                    <p>Esta conta foi encerrada sem itens.</p>
+                                <?php endif; ?>
                             </div>
                         <?php endif; ?>
                     </div>
@@ -557,6 +691,7 @@
             </div>
         </div>
 
+        <?php if (!$is_closed): ?>
         <div class="modal fade" id="closeOrderModal" tabindex="-1" aria-labelledby="closeOrderModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content custom-modal">
@@ -565,11 +700,6 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
                     </div>
                     <div class="modal-body">
-                        <div class="alert alert-warning">
-                            <i class="ph ph-warning-circle"></i>
-                            <strong>Atenção!</strong> Ao fechar a conta, será gerado um relatório em CSV e todos os itens do pedido serão removidos.
-                        </div>
-                        
                         <div class="resumo-fechamento">
                             <h6>Resumo do Pedido:</h6>
                             <div class="d-flex justify-content-between">
@@ -604,6 +734,7 @@
                 </div>
             </div>
         </div>
+        <?php endif; ?>
 
         <footer>
             <div class="d-flex flex-column align-items-center">
