@@ -28,4 +28,4 @@ Sistema web para gerenciamento de pedidos em mesas de um restaurante ou lanchone
 1. Clone o repositório:
 
 ```bash
-git clone https://github.com/seu-usuario/burger-table.git
+git clone https://github.com/DeividyGB/burger-table-lab.git
