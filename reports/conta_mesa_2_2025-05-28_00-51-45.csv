@@ -1,8 +1,0 @@
-Mesa,Produto,Quantidade,Preco_Unitario,Data_Adicao,Subtotal
-2,"Hamburger de Siri",1,150.00,"2025-05-27 19:47:37",150.00
-2,"Coca-cola espumante",1,10.00,"2025-05-27 19:47:48",10.00
-
-TOTAL,,,,,160.00
-CLIENTE,"Professora Andréia",,,,
-PESSOAS,3,,,,
-VALOR_POR_PESSOA,,,,,53.33
